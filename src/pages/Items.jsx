@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../App.css";
 import AdminSidebar from "../components/AdminSidebar";
 
-const API = "http://localhost/api";
+const API = "https://code6technologies.com/catalogproapi";
 
 function Items() {
   const navigate = useNavigate();
@@ -223,7 +223,7 @@ const openEditForm = (item) => {
 
   setImagePreview(
     item.image
-      ? `http://localhost/api/${item.image}`
+      ? `https://code6technologies.com/catalogproapi/${item.image}`
       : ""
   );
 
@@ -1083,7 +1083,7 @@ const uploadItemImage = async (itemId) => {
                         {item.image ? (
 
                           <img
-                            src={`http://localhost/api/${item.image}`}
+                            src={`https://code6technologies.com/catalogproapi/${item.image}`}
                             alt={item.name}
                             className="item-list-image"
                           />
@@ -1241,7 +1241,7 @@ const uploadItemImage = async (itemId) => {
                     {item.image ? (
 
                       <img
-                        src={`http://localhost/api/${item.image}`}
+                        src={`https://code6technologies.com/catalogproapi/${item.image}`}
                         alt={item.name}
                       />
 
