@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
+import AdminSidebar from "../components/AdminSidebar";
 
 const API = "http://localhost/api";
 
@@ -14,6 +15,8 @@ function Items() {
   const [showForm, setShowForm] = useState(false);
 
   const [editingId, setEditingId] = useState(null);
+
+  const [removeImage, setRemoveImage] = useState(false);
 
   const [form, setForm] = useState({
     category_id: "",
@@ -162,6 +165,9 @@ const [uploadingImage, setUploadingImage] = useState(false);
      setSelectedImage(null);
   setImagePreview("");
 
+    setRemoveImage(false);
+
+
     setEditingId(null);
     setShowForm(false);
   };
@@ -171,6 +177,8 @@ const [uploadingImage, setUploadingImage] = useState(false);
     setError("");
 
     setEditingId(null);
+      setRemoveImage(false);
+
 
     setForm({
       category_id:
@@ -193,40 +201,34 @@ setImagePreview("");
     setShowForm(true);
   };
 
-  const openEditForm = (item) => {
-    setMessage("");
-    setError("");
+const openEditForm = (item) => {
+  setMessage("");
+  setError("");
 
-    setEditingId(item.id);
+  setEditingId(item.id);
+  setRemoveImage(false);
+  setSelectedImage(null);
 
-    setForm({
-      category_id:
-        item.category_id || "",
-      item_type:
-        item.item_type || "product",
-      name: item.name || "",
-      slug: item.slug || "",
-      short_description:
-        item.short_description || "",
-      description:
-        item.description || "",
-      price: item.price || "",
-      sale_price:
-        item.sale_price || "",
-      sort_order:
-        item.sort_order ?? 0,
-    });
+  setForm({
+    category_id: item.category_id || "",
+    item_type: item.item_type || "product",
+    name: item.name || "",
+    slug: item.slug || "",
+    short_description: item.short_description || "",
+    description: item.description || "",
+    price: item.price || "",
+    sale_price: item.sale_price || "",
+    sort_order: item.sort_order ?? 0,
+  });
 
-    setSelectedImage(null);
+  setImagePreview(
+    item.image
+      ? `http://localhost/api/${item.image}`
+      : ""
+  );
 
-setImagePreview(
-  item.image
-    ? `http://localhost/api/${item.image}`
-    : ""
-);
-
-    setShowForm(true);
-  };
+  setShowForm(true);
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -276,6 +278,7 @@ setImagePreview(
               Number(form.sale_price) || 0,
             sort_order:
               Number(form.sort_order) || 0,
+              remove_image: removeImage,
           }
         : {
             category_id:
@@ -379,7 +382,7 @@ await loadData();
     }
   };
 
-  const handleImageChange = (e) => {
+const handleImageChange = (e) => {
   const file = e.target.files?.[0];
 
   if (!file) {
@@ -397,10 +400,9 @@ await loadData();
   }
 
   setSelectedImage(file);
-  setImagePreview(
-    URL.createObjectURL(file)
-  );
+  setImagePreview(URL.createObjectURL(file));
 
+  setRemoveImage(false);
   setError("");
 };
 
@@ -569,78 +571,7 @@ const uploadItemImage = async (itemId) => {
 
       {/* SIDEBAR */}
 
-      <aside className="admin-sidebar">
-
-        <div className="admin-brand">
-
-          <div className="admin-logo">
-            C
-          </div>
-
-          <div>
-            <h2>CatalogPro</h2>
-            <span>Admin Panel</span>
-          </div>
-
-        </div>
-
-        <nav className="admin-nav">
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/dashboard")
-            }
-          >
-            <span>▦</span>
-            Dashboard
-          </button>
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/business")
-            }
-          >
-            <span>◈</span>
-            Business Profile
-          </button>
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/categories")
-            }
-          >
-            <span>☷</span>
-            Categories
-          </button>
-
-          <button
-            className="admin-nav-item active"
-          >
-            <span>▣</span>
-            Items
-          </button>
-
-        </nav>
-
-        <div className="admin-sidebar-bottom">
-
-          <button
-            className="admin-nav-item"
-            onClick={() => {
-              localStorage.clear();
-              navigate("/login");
-            }}
-          >
-            <span>↪</span>
-            Logout
-          </button>
-
-        </div>
-
-      </aside>
+<AdminSidebar />
 
 
       {/* MAIN */}
@@ -737,9 +668,10 @@ const uploadItemImage = async (itemId) => {
           type="button"
           className="item-remove-image"
           onClick={() => {
-            setSelectedImage(null);
-            setImagePreview("");
-          }}
+  setSelectedImage(null);
+  setImagePreview("");
+  setRemoveImage(true);
+}}
         >
           Remove
         </button>
@@ -1041,248 +973,441 @@ const uploadItemImage = async (itemId) => {
 
         {/* ITEMS */}
 
-        <section className="item-table-card">
+{/* ITEMS */}
 
-          <div className="category-table-header">
+<section className="item-table-card">
 
-            <div>
-              <h2>
-                All Items
-              </h2>
+  {/* HEADER */}
 
-              <span>
-                {items.length} items
-              </span>
-            </div>
+  <div className="category-table-header">
 
-          </div>
+    <div>
+
+      <h2>
+        All Items
+      </h2>
+
+      <span>
+        {items.length}{" "}
+        {items.length === 1
+          ? "item"
+          : "items"}
+      </span>
+
+    </div>
+
+  </div>
 
 
-          {items.length === 0 ? (
+  {/* EMPTY */}
 
-            <div className="category-empty">
+  {items.length === 0 ? (
 
-              <div className="category-empty-icon">
-                ▣
+    <div className="category-empty">
+
+      <div className="category-empty-icon">
+        ▣
+      </div>
+
+      <h3>
+        No items yet
+      </h3>
+
+      <p>
+        Add your first product,
+        service or package.
+      </p>
+
+      <button
+        className="category-add-button"
+        onClick={openAddForm}
+      >
+        + Add Item
+      </button>
+
+    </div>
+
+  ) : (
+
+    <>
+
+      {/* DESKTOP TABLE */}
+
+      <div className="category-table-wrapper">
+
+        <table className="category-table">
+
+          <thead>
+
+            <tr>
+
+              <th>#</th>
+
+              <th>Item</th>
+
+              <th>Category</th>
+
+              <th>Type</th>
+
+              <th>Price</th>
+
+              <th>Sale Price</th>
+
+              <th>Status</th>
+
+              <th>Actions</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            {items.map(
+              (item, index) => (
+
+                <tr key={item.id}>
+
+                  <td>
+                    {index + 1}
+                  </td>
+
+
+                  <td>
+
+                    <div className="item-name-cell">
+
+                      <div className="category-icon">
+
+                        {item.image ? (
+
+                          <img
+                            src={`http://localhost/api/${item.image}`}
+                            alt={item.name}
+                            className="item-list-image"
+                          />
+
+                        ) : (
+
+                          item.name
+                            ?.charAt(0)
+                            .toUpperCase()
+
+                        )}
+
+                      </div>
+
+
+                      <div>
+
+                        <strong>
+                          {item.name}
+                        </strong>
+
+                        <small>
+                          {item.slug}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+                  </td>
+
+
+                  <td>
+
+                    <span className="item-category-badge">
+
+                      {item.category?.name ||
+                        item.category_name ||
+                        "—"}
+
+                    </span>
+
+                  </td>
+
+
+                  <td>
+
+                    <span className="item-type-badge">
+
+                      {item.item_type}
+
+                    </span>
+
+                  </td>
+
+
+                  <td>
+
+                    <span className="item-price">
+
+                      ₹
+                      {Number(
+                        item.price || 0
+                      ).toLocaleString("en-IN")}
+
+                    </span>
+
+                  </td>
+
+
+                  <td>
+
+                    <span className="item-sale-price">
+
+                      ₹
+                      {Number(
+                        item.sale_price || 0
+                      ).toLocaleString("en-IN")}
+
+                    </span>
+
+                  </td>
+
+
+                  <td>
+
+                    <span className="category-status">
+                      Active
+                    </span>
+
+                  </td>
+
+
+                  <td>
+
+                    <div className="category-actions">
+
+                      <button
+                        type="button"
+                        className="category-edit-button"
+                        onClick={() =>
+                          openEditForm(item)
+                        }
+                      >
+                        Edit
+                      </button>
+
+
+                      <button
+                        type="button"
+                        className="category-delete-button"
+                        onClick={() =>
+                          handleDelete(item.id)
+                        }
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              )
+            )}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      {/* MOBILE CARDS */}
+
+      <div className="item-mobile-list">
+
+        {items.map(
+          (item, index) => (
+
+            <div
+              className="item-mobile-card"
+              key={item.id}
+            >
+
+              {/* CARD HEADER */}
+
+              <div className="item-mobile-top">
+
+                <div className="item-mobile-info">
+
+                  <div className="item-mobile-image">
+
+                    {item.image ? (
+
+                      <img
+                        src={`http://localhost/api/${item.image}`}
+                        alt={item.name}
+                      />
+
+                    ) : (
+
+                      <span>
+                        {item.name
+                          ?.charAt(0)
+                          .toUpperCase()}
+                      </span>
+
+                    )}
+
+                  </div>
+
+
+                  <div className="item-mobile-title">
+
+                    <strong>
+                      {item.name}
+                    </strong>
+
+                    <span>
+                      /{item.slug}
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <span className="item-mobile-status">
+                  Active
+                </span>
+
               </div>
 
-              <h3>
-                No items yet
-              </h3>
 
-              <p>
-                Add your first product,
-                service or package.
-              </p>
+              {/* CATEGORY + TYPE */}
 
-              <button
-                className="category-add-button"
-                onClick={openAddForm}
-              >
-                + Add Item
-              </button>
+              <div className="item-mobile-details">
+
+                <div>
+
+                  <small>
+                    Category
+                  </small>
+
+                  <strong>
+                    {item.category?.name ||
+                      item.category_name ||
+                      "—"}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <small>
+                    Type
+                  </small>
+
+                  <strong className="item-mobile-type">
+                    {item.item_type}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              {/* PRICE */}
+
+              <div className="item-mobile-prices">
+
+                <div>
+
+                  <small>
+                    Price
+                  </small>
+
+                  <strong>
+                    ₹
+                    {Number(
+                      item.price || 0
+                    ).toLocaleString("en-IN")}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <small>
+                    Sale Price
+                  </small>
+
+                  <strong className="item-mobile-sale-price">
+
+                    ₹
+                    {Number(
+                      item.sale_price || 0
+                    ).toLocaleString("en-IN")}
+
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              {/* NUMBER */}
+
+              <div className="item-mobile-number">
+
+                <span>
+                  #
+                </span>
+
+                <strong>
+                  {index + 1}
+                </strong>
+
+              </div>
+
+
+              {/* ACTIONS */}
+
+              <div className="item-mobile-actions">
+
+                <button
+                  type="button"
+                  className="category-edit-button"
+                  onClick={() =>
+                    openEditForm(item)
+                  }
+                >
+                  Edit
+                </button>
+
+
+                <button
+                  type="button"
+                  className="category-delete-button"
+                  onClick={() =>
+                    handleDelete(item.id)
+                  }
+                >
+                  Delete
+                </button>
+
+              </div>
 
             </div>
 
-          ) : (
+          )
+        )}
 
-            <div className="category-table-wrapper">
+      </div>
 
-              <table className="category-table">
+    </>
 
-                <thead>
-
-                  <tr>
-
-                    <th>
-                      #
-                    </th>
-
-                    <th>
-                      Item
-                    </th>
-
-                    <th>
-                      Category
-                    </th>
-
-                    <th>
-                      Type
-                    </th>
-
-                    <th>
-                      Price
-                    </th>
-
-                    <th>
-                      Sale Price
-                    </th>
-
-                    <th>
-                      Status
-                    </th>
-
-                    <th>
-                      Actions
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {items.map(
-                    (item, index) => (
-
-                      <tr
-                        key={item.id}
-                      >
-
-                        <td>
-                          {index + 1}
-                        </td>
-
-                        <td>
-
-                          <div className="item-name-cell">
-
-                            <div className="item-image-box">
-  {item.image ? (
-    <img
-      src={`http://localhost/api/${item.image}`}
-      alt={item.name}
-      className="item-list-image"
-    />
-  ) : (
-    <div className="item-image-placeholder">
-      {item.name
-        ?.charAt(0)
-        .toUpperCase()}
-    </div>
   )}
-</div>
 
-                            <div>
-
-                              <strong>
-                                {item.name}
-                              </strong>
-
-                              <small>
-                                {item.slug}
-                              </small>
-
-                            </div>
-
-                          </div>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="item-category-badge">
-                            {item.category?.name ||
-                              item.category_name ||
-                              "—"}
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="item-type-badge">
-                            {item.item_type}
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="item-price">
-                            ₹
-                            {Number(
-                              item.price || 0
-                            ).toLocaleString(
-                              "en-IN"
-                            )}
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="item-sale-price">
-                            ₹
-                            {Number(
-                              item.sale_price ||
-                                0
-                            ).toLocaleString(
-                              "en-IN"
-                            )}
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="category-status">
-                            Active
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <div className="category-actions">
-
-                            <button
-                              className="category-edit-button"
-                              onClick={() =>
-                                openEditForm(
-                                  item
-                                )
-                              }
-                            >
-                              Edit
-                            </button>
-
-                            <button
-                              className="category-delete-button"
-                              onClick={() =>
-                                handleDelete(
-                                  item.id
-                                )
-                              }
-                            >
-                              Delete
-                            </button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          )}
-
-        </section>
-
+</section>
       </main>
 
     </div>

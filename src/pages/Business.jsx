@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { QRCodeCanvas } from "qrcode.react";
+import AdminSidebar from "../components/AdminSidebar";
 import "../App.css";
 
 const API = "http://localhost/api";
@@ -168,7 +170,7 @@ function Business() {
       const response = await fetch(
         `${API}/business/update.php`,
         {
-          method: "POST",
+          method: "PUT",
 
           headers: {
             Authorization:
@@ -501,6 +503,11 @@ function Business() {
     );
   }
 
+  const businessName =
+  business?.business_name || "My Business";
+
+const catalogueUrl =
+  `${window.location.origin}/${business?.slug || ""}`;
 
   if (!business) {
     return (
@@ -515,103 +522,7 @@ function Business() {
     <div className="admin-layout">
 
       {/* SIDEBAR */}
-
-      <aside className="admin-sidebar">
-
-        <div className="admin-brand">
-
-          <div className="admin-logo">
-            C
-          </div>
-
-          <div>
-            <h2>
-              CatalogPro
-            </h2>
-
-            <span>
-              Admin Panel
-            </span>
-          </div>
-
-        </div>
-
-
-        <nav className="admin-nav">
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/dashboard")
-            }
-          >
-            <span>▦</span>
-            Dashboard
-          </button>
-
-
-          <button
-            className="admin-nav-item active"
-          >
-            <span>◈</span>
-            Business Profile
-          </button>
-
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/categories")
-            }
-          >
-            <span>☷</span>
-            Categories
-          </button>
-
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/items")
-            }
-          >
-            <span>▣</span>
-            Items
-          </button>
-
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate(
-                `/${business.slug}`
-              )
-            }
-          >
-            <span>↗</span>
-            View Catalogue
-          </button>
-
-        </nav>
-
-
-        <div className="admin-sidebar-bottom">
-
-          <button
-            className="admin-nav-item"
-            onClick={() => {
-              localStorage.clear();
-              navigate("/login");
-            }}
-          >
-            <span>↪</span>
-            Logout
-          </button>
-
-        </div>
-
-      </aside>
-
+<AdminSidebar />
 
       {/* MAIN */}
 
@@ -1088,6 +999,191 @@ function Business() {
           </div>
 
 
+<br/>
+
+{/* =========================
+    CATALOGUE QR CODE
+========================= */}
+
+<div className="admin-panel">
+
+  <div className="panel-header">
+
+    <div>
+      <h3>
+        Catalogue QR Code
+      </h3>
+
+      <p>
+        Customers can scan this QR code
+        to view your catalogue.
+      </p>
+    </div>
+
+  </div>
+
+  <div className="business-qr-section">
+
+    <div className="business-qr-code">
+
+      <QRCodeCanvas
+        id="catalogue-qr"
+        value={catalogueUrl}
+        size={220}
+        level="H"
+        includeMargin={true}
+      />
+
+    </div>
+
+    <div className="business-qr-info">
+
+      <span className="dashboard-label">
+        YOUR CATALOGUE
+      </span>
+
+      <h3>
+        {businessName}
+      </h3>
+
+      <p>
+        {catalogueUrl}
+      </p>
+
+      <div className="business-qr-actions">
+
+        <button
+          type="button"
+          className="admin-primary-button"
+          onClick={() => {
+            const canvas =
+              document.getElementById(
+                "catalogue-qr"
+              );
+
+            if (!canvas) {
+              alert("QR Code not found.");
+              return;
+            }
+
+            const link =
+              document.createElement("a");
+
+            link.download =
+              `${business?.slug || "catalogue"}-qr-code.png`;
+
+            link.href =
+              canvas.toDataURL("image/png");
+
+            link.click();
+          }}
+        >
+          Download QR Code
+        </button>
+
+        <button
+          type="button"
+          className="admin-secondary-button"
+          onClick={() => {
+
+            const canvas =
+              document.getElementById(
+                "catalogue-qr"
+              );
+
+            if (!canvas) {
+              alert("QR Code not found.");
+              return;
+            }
+
+            const image =
+              canvas.toDataURL("image/png");
+
+            const printWindow =
+              window.open("", "_blank");
+
+            if (!printWindow) {
+              alert("Please allow pop-ups.");
+              return;
+            }
+
+            printWindow.document.write(`
+              <html>
+
+                <head>
+
+                  <title>
+                    ${businessName} - QR Code
+                  </title>
+
+                  <style>
+
+                    body {
+                      font-family: Arial, sans-serif;
+                      text-align: center;
+                      padding: 50px;
+                    }
+
+                    h1 {
+                      font-size: 30px;
+                    }
+
+                    img {
+                      width: 300px;
+                      height: 300px;
+                      margin: 30px auto;
+                    }
+
+                    p {
+                      color: #64748b;
+                    }
+
+                  </style>
+
+                </head>
+
+                <body>
+
+                  <h1>
+                    ${businessName}
+                  </h1>
+
+                  <p>
+                    Scan to View Catalogue
+                  </p>
+
+                  <img
+                    src="${image}"
+                    alt="Catalogue QR Code"
+                  />
+
+                  <p>
+                    ${catalogueUrl}
+                  </p>
+
+                </body>
+
+              </html>
+            `);
+
+            printWindow.document.close();
+
+            setTimeout(() => {
+              printWindow.print();
+            }, 500);
+
+          }}
+        >
+          Print QR Code
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
           {/* FORM FOOTER */}
 
           <div className="profile-form-footer">

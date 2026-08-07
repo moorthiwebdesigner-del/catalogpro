@@ -1,9 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { QRCodeCanvas } from "qrcode.react";
 import "../App.css";
+import AdminSidebar from "../components/AdminSidebar";
+
+const API = "http://localhost/api";
 
 function Dashboard() {
   const navigate = useNavigate();
+
+    const getImageUrl = (path) => {
+  if (!path) return "";
+
+  if (
+    path.startsWith("http://") ||
+    path.startsWith("https://")
+  ) {
+    return path;
+  }
+
+  return `${API}/${path.replace(/^\/+/, "")}`;
+};
+
 
   const [business, setBusiness] = useState(null);
   const [user, setUser] = useState(null);
@@ -13,6 +31,8 @@ function Dashboard() {
     categories_count: 0,
     items_count: 0,
   });
+
+  
 
   const [loading, setLoading] = useState(true);
 
@@ -125,92 +145,7 @@ function Dashboard() {
 
       {/* SIDEBAR */}
 
-      <aside className="admin-sidebar">
-
-        <div className="admin-brand">
-
-          <div className="admin-logo">
-            C
-          </div>
-
-          <div>
-            <h2>CatalogPro</h2>
-            <span>Admin Panel</span>
-          </div>
-
-        </div>
-
-
-        <nav className="admin-nav">
-
-          <button
-            className="admin-nav-item active"
-          >
-            <span>▦</span>
-            Dashboard
-          </button>
-
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/business")
-            }
-          >
-            <span>◈</span>
-            Business Profile
-          </button>
-
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/categories")
-            }
-          >
-            <span>☷</span>
-            Categories
-          </button>
-
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/items")
-            }
-          >
-            <span>▣</span>
-            Items
-          </button>
-
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate(`/${business.slug}`)
-            }
-          >
-            <span>↗</span>
-            View Catalogue
-          </button>
-
-        </nav>
-
-
-        <div className="admin-sidebar-bottom">
-
-          <button
-            className="admin-nav-item logout-button"
-            onClick={handleLogout}
-          >
-            <span>↪</span>
-            Logout
-          </button>
-
-        </div>
-
-      </aside>
-
+<AdminSidebar />
 
       {/* MAIN */}
 
@@ -270,7 +205,7 @@ function Dashboard() {
               {business.logo ? (
 
                 <img
-                  src={business.logo}
+                  src={getImageUrl(business.logo)}
                   alt={business.name}
                 />
 
@@ -307,8 +242,12 @@ function Dashboard() {
           <button
             className="dashboard-view-button"
             onClick={() =>
-              navigate(`/${business.slug}`)
-            }
+    window.open(
+      `/${business.slug}`,
+      "_blank",
+      "noopener,noreferrer"
+    )
+  }
           >
             View Catalogue ↗
           </button>
@@ -402,196 +341,301 @@ function Dashboard() {
 
         {/* CONTENT */}
 
-        <section className="dashboard-grid">
+   <section className="dashboard-grid">
 
+  {/* BUSINESS INFO */}
 
-          {/* BUSINESS INFO */}
+  <div className="dashboard-panel">
 
-          <div className="dashboard-panel">
+    <div className="panel-header">
 
-            <div className="panel-header">
+      <div>
 
-              <div>
+        <h3>
+          Business Information
+        </h3>
 
-                <h3>
-                  Business Information
-                </h3>
+        <p>
+          Your public business details
+        </p>
 
-                <p>
-                  Your public business details
-                </p>
+      </div>
 
-              </div>
+      <button
+        onClick={() =>
+          navigate("/business")
+        }
+      >
+        Edit
+      </button>
 
+    </div>
 
-              <button
-                onClick={() =>
-                  navigate("/business")
-                }
-              >
-                Edit
-              </button>
 
-            </div>
+    <div className="business-details">
 
+      <div className="detail-row">
 
-            <div className="business-details">
+        <span>
+          Business Name
+        </span>
 
-              <div className="detail-row">
+        <strong>
+          {business.name}
+        </strong>
 
-                <span>
-                  Business Name
-                </span>
+      </div>
 
-                <strong>
-                  {business.name}
-                </strong>
 
-              </div>
+      <div className="detail-row">
 
+        <span>
+          Phone
+        </span>
 
-              <div className="detail-row">
+        <strong>
+          {business.phone ||
+            "Not added"}
+        </strong>
 
-                <span>
-                  Phone
-                </span>
+      </div>
 
-                <strong>
-                  {business.phone ||
-                    "Not added"}
-                </strong>
 
-              </div>
+      <div className="detail-row">
 
+        <span>
+          Email
+        </span>
 
-              <div className="detail-row">
+        <strong>
+          {business.email ||
+            "Not added"}
+        </strong>
 
-                <span>
-                  Email
-                </span>
+      </div>
 
-                <strong>
-                  {business.email ||
-                    "Not added"}
-                </strong>
 
-              </div>
+      <div className="detail-row">
 
+        <span>
+          WhatsApp
+        </span>
 
-              <div className="detail-row">
+        <strong>
+          {business.whatsapp ||
+            "Not added"}
+        </strong>
 
-                <span>
-                  WhatsApp
-                </span>
+      </div>
 
-                <strong>
-                  {business.whatsapp ||
-                    "Not added"}
-                </strong>
+    </div>
 
-              </div>
+  </div>
 
-            </div>
 
-          </div>
+  {/* QR CODE */}
 
+  <div className="dashboard-panel dashboard-qr-panel">
 
-          {/* QUICK ACTIONS */}
+    <div className="panel-header">
 
-          <div className="dashboard-panel">
+      <div>
 
-            <div className="panel-header">
+        <h3>
+          Catalogue QR Code
+        </h3>
 
-              <div>
+        <p>
+          Scan to view your catalogue
+        </p>
 
-                <h3>
-                  Quick Actions
-                </h3>
+      </div>
 
-                <p>
-                  Manage your catalogue
-                </p>
+    </div>
 
-              </div>
 
-            </div>
+    <div className="dashboard-qr-content">
 
+      <div className="dashboard-qr-box">
 
-            <div className="quick-actions">
+        <QRCodeCanvas
+          value={
+            `${window.location.origin}/${business.slug}`
+          }
+          size={160}
+          level="H"
+          includeMargin={true}
+        />
 
-              <button
-                onClick={() =>
-                  navigate("/business")
-                }
-              >
+      </div>
 
-                <span>◈</span>
 
-                <div>
+      <div className="dashboard-qr-info">
 
-                  <strong>
-                    Business Profile
-                  </strong>
+        <strong>
+          {business.name}
+        </strong>
 
-                  <small>
-                    Update business details
-                  </small>
+        <span>
+          /{business.slug}
+        </span>
 
-                </div>
 
-              </button>
+        <button
+          type="button"
+          className="dashboard-qr-download"
+          onClick={() => {
 
+            const canvas =
+              document.querySelector(
+                ".dashboard-qr-box canvas"
+              );
 
-              <button
-                onClick={() =>
-                  navigate("/categories")
-                }
-              >
+            if (!canvas) {
+              alert("QR Code not found.");
+              return;
+            }
 
-                <span>☷</span>
+            const link =
+              document.createElement("a");
 
-                <div>
+            link.download =
+              `${business.slug}-qr-code.png`;
 
-                  <strong>
-                    Manage Categories
-                  </strong>
+            link.href =
+              canvas.toDataURL("image/png");
 
-                  <small>
-                    Add or edit categories
-                  </small>
+            link.click();
 
-                </div>
+          }}
+        >
+          Download QR
+        </button>
 
-              </button>
 
+        <button
+          type="button"
+          className="dashboard-qr-view"
+          onClick={() =>
+            window.open(
+              `/${business.slug}`,
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
+        >
+          View Catalogue ↗
+        </button>
 
-              <button
-                onClick={() =>
-                  navigate("/items")
-                }
-              >
+      </div>
 
-                <span>▣</span>
+    </div>
 
-                <div>
+  </div>
 
-                  <strong>
-                    Manage Items
-                  </strong>
 
-                  <small>
-                    Add products and services
-                  </small>
+  {/* QUICK ACTIONS */}
 
-                </div>
+  <div className="dashboard-panel">
 
-              </button>
+    <div className="panel-header">
 
-            </div>
+      <div>
 
-          </div>
+        <h3>
+          Quick Actions
+        </h3>
 
-        </section>
+        <p>
+          Manage your catalogue
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div className="quick-actions">
+
+      <button
+        onClick={() =>
+          navigate("/business")
+        }
+      >
+
+        <span>
+          ◈
+        </span>
+
+        <div>
+
+          <strong>
+            Business Profile
+          </strong>
+
+          <small>
+            Update business details
+          </small>
+
+        </div>
+
+      </button>
+
+
+      <button
+        onClick={() =>
+          navigate("/categories")
+        }
+      >
+
+        <span>
+          ☷
+        </span>
+
+        <div>
+
+          <strong>
+            Manage Categories
+          </strong>
+
+          <small>
+            Add or edit categories
+          </small>
+
+        </div>
+
+      </button>
+
+
+      <button
+        onClick={() =>
+          navigate("/items")
+        }
+      >
+
+        <span>
+          ▣
+        </span>
+
+        <div>
+
+          <strong>
+            Manage Items
+          </strong>
+
+          <small>
+            Add products and services
+          </small>
+
+        </div>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
 
       </main>
 

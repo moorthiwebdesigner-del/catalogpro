@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
+import AdminSidebar from "../components/AdminSidebar";
 
 const API = "http://localhost/api";
 
@@ -287,79 +288,7 @@ function Categories() {
 
       {/* SIDEBAR */}
 
-      <aside className="admin-sidebar">
-
-        <div className="admin-brand">
-
-          <div className="admin-logo">
-            C
-          </div>
-
-          <div>
-            <h2>CatalogPro</h2>
-            <span>Admin Panel</span>
-          </div>
-
-        </div>
-
-        <nav className="admin-nav">
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/dashboard")
-            }
-          >
-            <span>▦</span>
-            Dashboard
-          </button>
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/business")
-            }
-          >
-            <span>◈</span>
-            Business Profile
-          </button>
-
-          <button
-            className="admin-nav-item active"
-          >
-            <span>☷</span>
-            Categories
-          </button>
-
-          <button
-            className="admin-nav-item"
-            onClick={() =>
-              navigate("/items")
-            }
-          >
-            <span>▣</span>
-            Items
-          </button>
-
-        </nav>
-
-        <div className="admin-sidebar-bottom">
-
-          <button
-            className="admin-nav-item"
-            onClick={() => {
-              localStorage.clear();
-              navigate("/login");
-            }}
-          >
-            <span>↪</span>
-            Logout
-          </button>
-
-        </div>
-
-      </aside>
-
+<AdminSidebar />
 
       {/* MAIN */}
 
@@ -521,181 +450,278 @@ function Categories() {
 
         {/* TABLE */}
 
-        <section className="category-table-card">
+<section className="category-table-card">
 
-          <div className="category-table-header">
+  {/* HEADER */}
 
-            <div>
-              <h2>
-                All Categories
-              </h2>
+  <div className="category-table-header">
 
-              <span>
-                {categories.length} categories
-              </span>
-            </div>
+    <div>
 
-          </div>
+      <h2>
+        All Categories
+      </h2>
+
+      <span>
+        {categories.length}{" "}
+        {categories.length === 1
+          ? "category"
+          : "categories"}
+      </span>
+
+    </div>
+
+  </div>
 
 
-          {categories.length === 0 ? (
+  {/* EMPTY */}
 
-            <div className="category-empty">
+  {categories.length === 0 ? (
 
-              <div className="category-empty-icon">
-                ☷
+    <div className="category-empty">
+
+      <div className="category-empty-icon">
+        ☷
+      </div>
+
+      <h3>
+        No categories yet
+      </h3>
+
+      <p>
+        Create your first category
+        to organize your catalogue.
+      </p>
+
+      <button
+        className="category-add-button"
+        onClick={openAddForm}
+      >
+        + Add Category
+      </button>
+
+    </div>
+
+  ) : (
+
+    <>
+
+      {/* DESKTOP TABLE */}
+
+      <div className="category-table-wrapper">
+
+        <table className="category-table">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Category</th>
+              <th>Slug</th>
+              <th>Sort Order</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {categories.map(
+              (category, index) => (
+
+                <tr key={category.id}>
+
+                  <td>
+                    {index + 1}
+                  </td>
+
+                  <td>
+
+                    <div className="category-name-cell">
+
+                      <div className="category-icon">
+                        {category.name
+                          ?.charAt(0)
+                          .toUpperCase()}
+                      </div>
+
+                      <strong>
+                        {category.name}
+                      </strong>
+
+                    </div>
+
+                  </td>
+
+                  <td>
+                    <span className="category-slug">
+                      {category.slug}
+                    </span>
+                  </td>
+
+                  <td>
+                    {category.sort_order}
+                  </td>
+
+                  <td>
+                    <span className="category-status">
+                      Active
+                    </span>
+                  </td>
+
+                  <td>
+
+                    <div className="category-actions">
+
+                      <button
+                        className="category-edit-button"
+                        onClick={() =>
+                          openEditForm(category)
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="category-delete-button"
+                        onClick={() =>
+                          handleDelete(category.id)
+                        }
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              )
+            )}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      {/* MOBILE CARDS */}
+
+      <div className="category-mobile-list">
+
+        {categories.map(
+          (category, index) => (
+
+            <div
+              className="category-mobile-card"
+              key={category.id}
+            >
+
+              {/* CARD TOP */}
+
+              <div className="category-mobile-top">
+
+                <div className="category-mobile-info">
+
+                  <div className="category-mobile-icon">
+                    {category.name
+                      ?.charAt(0)
+                      .toUpperCase()}
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      {category.name}
+                    </strong>
+
+                    <span>
+                      /{category.slug}
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <span className="category-mobile-status">
+                  Active
+                </span>
+
               </div>
 
-              <h3>
-                No categories yet
-              </h3>
 
-              <p>
-                Create your first category
-                to organize your catalogue.
-              </p>
+              {/* DETAILS */}
 
-              <button
-                className="category-add-button"
-                onClick={openAddForm}
-              >
-                + Add Category
-              </button>
+              <div className="category-mobile-details">
 
-            </div>
+                <div>
 
-          ) : (
+                  <small>
+                    #
+                  </small>
 
-            <div className="category-table-wrapper">
+                  <strong>
+                    {index + 1}
+                  </strong>
 
-              <table className="category-table">
+                </div>
 
-                <thead>
 
-                  <tr>
+                <div>
 
-                    <th>
-                      #
-                    </th>
+                  <small>
+                    Sort Order
+                  </small>
 
-                    <th>
-                      Category
-                    </th>
+                  <strong>
+                    {category.sort_order}
+                  </strong>
 
-                    <th>
-                      Slug
-                    </th>
+                </div>
 
-                    <th>
-                      Sort Order
-                    </th>
+              </div>
 
-                    <th>
-                      Status
-                    </th>
 
-                    <th>
-                      Actions
-                    </th>
+              {/* ACTIONS */}
 
-                  </tr>
+              <div className="category-mobile-actions">
 
-                </thead>
+                <button
+                  type="button"
+                  className="category-edit-button"
+                  onClick={() =>
+                    openEditForm(category)
+                  }
+                >
+                  Edit
+                </button>
 
-                <tbody>
+                <button
+                  type="button"
+                  className="category-delete-button"
+                  onClick={() =>
+                    handleDelete(category.id)
+                  }
+                >
+                  Delete
+                </button>
 
-                  {categories.map(
-                    (category, index) => (
-
-                      <tr
-                        key={category.id}
-                      >
-
-                        <td>
-                          {index + 1}
-                        </td>
-
-                        <td>
-
-                          <div className="category-name-cell">
-
-                            <div className="category-icon">
-                              {category.name
-                                ?.charAt(0)
-                                .toUpperCase()}
-                            </div>
-
-                            <strong>
-                              {category.name}
-                            </strong>
-
-                          </div>
-
-                        </td>
-
-                        <td>
-                          <span className="category-slug">
-                            {category.slug}
-                          </span>
-                        </td>
-
-                        <td>
-                          {category.sort_order}
-                        </td>
-
-                        <td>
-
-                          <span className="category-status">
-                            Active
-                          </span>
-
-                        </td>
-
-                        <td>
-
-                          <div className="category-actions">
-
-                            <button
-                              className="category-edit-button"
-                              onClick={() =>
-                                openEditForm(
-                                  category
-                                )
-                              }
-                            >
-                              Edit
-                            </button>
-
-                            <button
-                              className="category-delete-button"
-                              onClick={() =>
-                                handleDelete(
-                                  category.id
-                                )
-                              }
-                            >
-                              Delete
-                            </button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
+              </div>
 
             </div>
 
-          )}
+          )
+        )}
 
-        </section>
+      </div>
 
+    </>
+
+  )}
+
+</section>
       </main>
 
     </div>
