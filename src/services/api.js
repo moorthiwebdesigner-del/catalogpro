@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost/api";
+const API_BASE_URL = "https://code6technologies.com/catalogproapi";
 
 export async function login(email, password) {
   const response = await fetch(`${API_BASE_URL}/auth/login.php`, {

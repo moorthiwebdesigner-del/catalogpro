@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
-const API = "http://localhost/api";
+const API = "https://code6technologies.com/catalogproapi";
 
 function Register() {
   const navigate = useNavigate();
@@ -232,7 +232,7 @@ function Register() {
               name="business_name"
               value={form.business_name}
               onChange={handleChange}
-              placeholder="Example: Moorthi Furniture"
+              placeholder="Example: Moorthi Web Developer"
               required
             />
 
@@ -266,7 +266,7 @@ function Register() {
               <br />
 
               <strong>
-                http://localhost:5173/
+                https://digital-catalogpro.vercel.app/
                 {form.slug || "your-business"}
               </strong>
             </small>

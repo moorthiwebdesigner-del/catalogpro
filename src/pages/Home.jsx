@@ -99,14 +99,18 @@ function Home() {
             </button>
 
             <button
-              className="home-secondary-button"
-              onClick={() =>
-                navigate("/moorthi-furniture")
-              }
-            >
-              View Demo
-              <span>↗</span>
-            </button>
+  className="home-secondary-button"
+  onClick={() =>
+    window.open(
+      "/moorthi-web-developer",
+      "_blank",
+      "noopener,noreferrer"
+    )
+  }
+>
+  View Demo
+  <span>↗</span>
+</button>
 
           </div>
 
@@ -165,12 +169,11 @@ function Home() {
                   <div>
 
                     <h3>
-                      Moorthi Furniture
+                      Moorthi Web Developer
                     </h3>
 
                     <span>
-                      Premium Furniture
-                    </span>
+Results-driven Senior WordPress Developer                    </span>
 
                   </div>
 

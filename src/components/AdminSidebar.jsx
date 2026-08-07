@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation  } from "react-router-dom";
 
 function AdminSidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
 
   const closeMenu = () => {
@@ -122,8 +123,10 @@ function AdminSidebar() {
         <nav className="admin-nav">
 
           <button
-            type="button"
-            className="admin-nav-item"
+           type="button"
+  className={`admin-nav-item ${
+    location.pathname === "/dashboard" ? "active" : ""
+  }`}
             onClick={() =>
               goTo("/dashboard")
             }
@@ -134,8 +137,10 @@ function AdminSidebar() {
 
 
           <button
-            type="button"
-            className="admin-nav-item"
+           type="button"
+  className={`admin-nav-item ${
+    location.pathname === "/business" ? "active" : ""
+  }`}
             onClick={() =>
               goTo("/business")
             }
@@ -147,7 +152,9 @@ function AdminSidebar() {
 
           <button
             type="button"
-            className="admin-nav-item"
+  className={`admin-nav-item ${
+    location.pathname === "/categories" ? "active" : ""
+  }`}
             onClick={() =>
               goTo("/categories")
             }
@@ -158,8 +165,10 @@ function AdminSidebar() {
 
 
           <button
-            type="button"
-            className="admin-nav-item"
+           type="button"
+  className={`admin-nav-item ${
+    location.pathname === "/items" ? "active" : ""
+  }`}
             onClick={() =>
               goTo("/items")
             }

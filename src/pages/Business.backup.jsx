@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import AdminSidebar from "../components/AdminSidebar";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
 import "../App.css";
 
 const API = "https://code6technologies.com/catalogproapi";
@@ -12,21 +9,6 @@ const API = "https://code6technologies.com/catalogproapi";
 function Business() {
   const navigate = useNavigate();
 
-const editor = useEditor({
-  extensions: [
-    StarterKit,
-    Link.configure({
-      openOnClick: false,
-    }),
-  ],
-  content: "",
-  onUpdate: ({ editor }) => {
-    setForm((prev) => ({
-      ...prev,
-      description: editor.getHTML(),
-    }));
-  },
-});
 
   const getImageUrl = (path) => {
   if (!path) return "";
@@ -53,12 +35,6 @@ const editor = useEditor({
     city: "",
     state: "",
     country: "India",
-     facebook: "",
-  instagram: "",
-  youtube: "",
-  linkedin: "",
-  seo_title: "",
-  seo_description: "",
   });
 
   const [logo, setLogo] = useState(null);
@@ -76,12 +52,6 @@ const editor = useEditor({
   useEffect(() => {
     loadBusiness();
   }, []);
-
-  useEffect(() => {
-  if (editor && business?.description) {
-    editor.commands.setContent(business.description);
-  }
-}, [editor, business?.description]);
 
   const getToken = () => {
     return localStorage.getItem("catalogpro_token");
@@ -156,27 +126,7 @@ const editor = useEditor({
 
         country:
           data.country || "India",
-
-          facebook:
-    data.facebook || "",
-
-  instagram:
-    data.instagram || "",
-
-  youtube:
-    data.youtube || "",
-
-  linkedin:
-    data.linkedin || "",
-
-    seo_title:
-  data.seo_title || "",
-
-seo_description:
-  data.seo_description || "",
       });
-
-      
 
     } catch (err) {
       console.error(err);
@@ -1036,272 +986,25 @@ const catalogueUrl =
                 Business Description
               </label>
 
-              <div className="business-editor">
-
-  <div className="editor-toolbar">
-
-    <button
-      type="button"
-      onClick={() =>
-        editor?.chain().focus().toggleBold().run()
-      }
-      className={
-        editor?.isActive("bold")
-          ? "editor-active"
-          : ""
-      }
-    >
-      <strong>B</strong>
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        editor?.chain().focus().toggleItalic().run()
-      }
-      className={
-        editor?.isActive("italic")
-          ? "editor-active"
-          : ""
-      }
-    >
-      <em>I</em>
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        editor
-          ?.chain()
-          .focus()
-          .toggleHeading({ level: 2 })
-          .run()
-      }
-    >
-      H2
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        editor
-          ?.chain()
-          .focus()
-          .toggleBulletList()
-          .run()
-      }
-    >
-      • List
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        editor
-          ?.chain()
-          .focus()
-          .toggleOrderedList()
-          .run()
-      }
-    >
-      1. List
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        editor?.chain().focus().unsetAllMarks().run()
-      }
-    >
-      Clear
-    </button>
-
-  </div>
-
-  <EditorContent editor={editor} />
-
-</div>
+              <textarea
+                name="description"
+                value={
+                  form.description
+                }
+                onChange={
+                  handleChange
+                }
+                rows="5"
+                placeholder="Tell customers about your business..."
+              />
 
             </div>
 
           </div>
 
-<br/>
-
-{/* SOCIAL MEDIA */}
-
-<div className="profile-form-section full">
-
-  <div className="profile-section-title">
-
-    <div>
-
-      <h2>
-        Social Media
-      </h2>
-
-      <p>
-        Add your social media links to your catalogue.
-      </p>
-
-    </div>
-
-  </div>
-
-
-  <div className="profile-form-grid">
-
-    {/* FACEBOOK */}
-
-    <div className="profile-field">
-
-      <label>
-        Facebook
-      </label>
-
-      <input
-        type="url"
-        name="facebook"
-        value={form.facebook}
-        onChange={handleChange}
-        placeholder="https://facebook.com/yourpage"
-      />
-
-    </div>
-
-
-    {/* INSTAGRAM */}
-
-    <div className="profile-field">
-
-      <label>
-        Instagram
-      </label>
-
-      <input
-        type="url"
-        name="instagram"
-        value={form.instagram}
-        onChange={handleChange}
-        placeholder="https://instagram.com/yourusername"
-      />
-
-    </div>
-
-
-    {/* YOUTUBE */}
-
-    <div className="profile-field">
-
-      <label>
-        YouTube
-      </label>
-
-      <input
-        type="url"
-        name="youtube"
-        value={form.youtube}
-        onChange={handleChange}
-        placeholder="https://youtube.com/@yourchannel"
-      />
-
-    </div>
-
-
-    {/* LINKEDIN */}
-
-    <div className="profile-field">
-
-      <label>
-        LinkedIn
-      </label>
-
-      <input
-        type="url"
-        name="linkedin"
-        value={form.linkedin}
-        onChange={handleChange}
-        placeholder="https://linkedin.com/company/yourcompany"
-      />
-
-    </div>
-
-  </div>
-
-</div>
-<br/>
-{/* SEO SETTINGS */}
-
-<div className="profile-section-title">
-
-  <div>
-
-    <h2>
-      SEO Settings
-    </h2>
-
-    <p>
-      Control how your catalogue appears
-      in Google search results.
-    </p>
-
-  </div>
-
-</div>
-
-
-<div className="profile-form-grid">
-
-  {/* SEO TITLE */}
-
-  <div className="profile-field full">
-
-    <label>
-      SEO Title
-    </label>
-
-    <input
-      type="text"
-      name="seo_title"
-      value={form.seo_title}
-      onChange={handleChange}
-      placeholder="Moorthi Web Developer | WordPress & Web Development"
-      maxLength={60}
-    />
-
-    <small>
-      {form.seo_title.length}/60 characters
-    </small>
-
-  </div>
-
-
-  {/* SEO DESCRIPTION */}
-
-  <div className="profile-field full">
-
-    <label>
-      SEO Description
-    </label>
-
-    <textarea
-      name="seo_description"
-      value={form.seo_description}
-      onChange={handleChange}
-      rows="4"
-      placeholder="Professional WordPress developer providing web design, development and digital solutions."
-      maxLength={160}
-    />
-
-    <small>
-      {form.seo_description.length}/160 characters
-    </small>
-
-  </div>
-
-</div>
 
 <br/>
+
 {/* =========================
     CATALOGUE QR CODE
 ========================= */}

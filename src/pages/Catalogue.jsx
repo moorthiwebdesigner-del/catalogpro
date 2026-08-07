@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import "../App.css";
 
-const API_URL = "http://localhost/api/catalog/view.php";
-const API_BASE = "http://localhost/api";
+const API_URL = "https://code6technologies.com/catalogproapi/catalog/view.php";
+const API_BASE = "https://code6technologies.com/catalogproapi";
+
 
 function Catalogue() {
   const [catalog, setCatalog] = useState(null);
@@ -82,7 +84,24 @@ function Catalogue() {
     items = [],
   } = catalog;
 
-  const filteredItems =
+
+
+       
+const seoTitle =
+  business.seo_title ||
+  business.business_name ||
+  "Digital Catalogue";
+
+const seoDescription =
+  business.seo_description ||
+  business.description
+    ?.replace(/<[^>]*>/g, " ")
+    .replace(/<[^>]*>/g, " ")
+    .trim()
+    .substring(0, 160) ||
+  `View ${business.business_name} digital catalogue.`;
+
+    const filteredItems =
     selectedCategory === "all"
       ? items
       : items.filter(
@@ -92,6 +111,17 @@ function Catalogue() {
         );
 
   return (
+ 
+    <>
+  <Helmet>
+    <title>{seoTitle}</title>
+
+    <meta
+      name="description"
+      content={seoDescription}
+    />
+  </Helmet>
+         
     <div className="catalog-page">
 
       {/* HERO */}
@@ -113,13 +143,17 @@ function Catalogue() {
       >
         <div className="hero-content">
 
-          {business.logo && (
-            <img
-              src={`${API_BASE}/${business.logo}`}
-              alt={business.business_name}
-              className="business-logo"
-            />
-          )}
+          {business.logo ? (
+  <img
+    src={`${API_BASE}/${business.logo}`}
+    alt={business.business_name}
+    className="business-logo"
+  />
+) : (
+  <div className="business-logo business-logo-placeholder">
+    {business.business_name?.charAt(0).toUpperCase()}
+  </div>
+)}
 
   <span className="hero-badge">
       DIGITAL CATALOGUE
@@ -129,9 +163,12 @@ function Catalogue() {
             {business.business_name}
           </h1>
 
-          {business.description && (
-            <p>{business.description}</p>
-          )}
+          <div className="catalogue-hero-description">
+  {business.description
+    ?.replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()}
+</div>
 
           <div className="hero-buttons">
 
@@ -172,7 +209,11 @@ function Catalogue() {
           </h2>
 
           {business.description ? (
-            <p>{business.description}</p>
+            <div
+  dangerouslySetInnerHTML={{
+    __html: business.description,
+  }}
+/>
           ) : (
             <p>
               Welcome to {business.business_name}.
@@ -343,40 +384,32 @@ function Catalogue() {
                     {/* PRICE */}
                     <div className="price">
 
-                      {item.sale_price ? (
+                      {(
+  Number(item.sale_price) > 0 ||
+  Number(item.price) > 0
+) && (
+  <div className="">
 
-                        <>
-                          <del>
-                            ₹
-                            {Number(
-                              item.price || 0
-                            ).toLocaleString(
-                              "en-IN"
-                            )}
-                          </del>
+    {Number(item.sale_price) > 0 ? (
+      <>
+        {Number(item.price) > 0 && (
+          <del>
+            ₹{Number(item.price).toLocaleString("en-IN")}
+          </del>
+        )}
 
-                          <strong>
-                            ₹
-                            {Number(
-                              item.sale_price
-                            ).toLocaleString(
-                              "en-IN"
-                            )}
-                          </strong>
-                        </>
+        <strong>
+          ₹{Number(item.sale_price).toLocaleString("en-IN")}
+        </strong>
+      </>
+    ) : (
+      <strong>
+        ₹{Number(item.price).toLocaleString("en-IN")}
+      </strong>
+    )}
 
-                      ) : (
-
-                        <strong>
-                          ₹
-                          {Number(
-                            item.price || 0
-                          ).toLocaleString(
-                            "en-IN"
-                          )}
-                        </strong>
-
-                      )}
+  </div>
+)}
 
                     </div>
 
@@ -488,34 +521,32 @@ function Catalogue() {
               {/* PRICE */}
               <div className="price">
 
-                {selectedItem.sale_price ? (
+               {(
+  Number(selectedItem.sale_price) > 0 ||
+  Number(selectedItem.price) > 0
+) && (
+  <div className="catalogue-popup-price">
 
-                  <>
-                    <del>
-                      ₹
-                      {Number(
-                        selectedItem.price || 0
-                      ).toLocaleString("en-IN")}
-                    </del>
+    {Number(selectedItem.sale_price) > 0 ? (
+      <>
+        {Number(selectedItem.price) > 0 && (
+          <del>
+            ₹{Number(selectedItem.price).toLocaleString("en-IN")}
+          </del>
+        )}
 
-                    <strong>
-                      ₹
-                      {Number(
-                        selectedItem.sale_price
-                      ).toLocaleString("en-IN")}
-                    </strong>
-                  </>
+        <strong>
+          ₹{Number(selectedItem.sale_price).toLocaleString("en-IN")}
+        </strong>
+      </>
+    ) : (
+      <strong>
+        ₹{Number(selectedItem.price).toLocaleString("en-IN")}
+      </strong>
+    )}
 
-                ) : (
-
-                  <strong>
-                    ₹
-                    {Number(
-                      selectedItem.price || 0
-                    ).toLocaleString("en-IN")}
-                  </strong>
-
-                )}
+  </div>
+)}
 
               </div>
 
@@ -546,6 +577,77 @@ function Catalogue() {
 
       )}
 
+
+{(
+  business.facebook ||
+  business.instagram ||
+  business.youtube ||
+  business.linkedin
+) && (
+  <section className="social-section">
+
+    <div className="catalog-container">
+
+      <h2>
+        Follow {business.business_name}
+      </h2>
+
+      <p>
+        Connect with us on social media.
+      </p>
+
+      <div className="social-icons">
+
+        {business.facebook && (
+          <a
+            href={business.facebook}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+          >
+            <i className="fi fi-brands-facebook"></i>
+          </a>
+        )}
+
+        {business.instagram && (
+          <a
+            href={business.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <i className="fi fi-brands-instagram"></i>
+          </a>
+        )}
+
+        {business.youtube && (
+          <a
+            href={business.youtube}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="YouTube"
+          >
+            <i className="fi fi-brands-youtube"></i>
+          </a>
+        )}
+
+        {business.linkedin && (
+          <a
+            href={business.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LinkedIn"
+          >
+            <i className="fi fi-brands-linkedin"></i>
+          </a>
+        )}
+
+      </div>
+
+    </div>
+
+  </section>
+)}
 
       {/* CONTACT */}
       <section className="contact-section">
@@ -617,6 +719,8 @@ function Catalogue() {
       </footer>
 
     </div>
+ </>
+
   );
 }
 

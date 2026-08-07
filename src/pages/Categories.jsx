@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../App.css";
 import AdminSidebar from "../components/AdminSidebar";
 
-const API = "http://localhost/api";
+const API = "https://code6technologies.com/catalogproapi";
 
 function Categories() {
   const navigate = useNavigate();

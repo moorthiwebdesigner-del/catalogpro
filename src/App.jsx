@@ -1,5 +1,4 @@
 import {
-  BrowserRouter,
   Routes,
   Route,
   Navigate,
@@ -16,7 +15,6 @@ import Items from "./pages/Items";
 
 function App() {
   return (
-    <BrowserRouter>
 
       <Routes>
 
@@ -90,7 +88,6 @@ function App() {
 
       </Routes>
 
-    </BrowserRouter>
   );
 }
 

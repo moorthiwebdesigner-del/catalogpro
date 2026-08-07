@@ -4,26 +4,29 @@ import { QRCodeCanvas } from "qrcode.react";
 import "../App.css";
 import AdminSidebar from "../components/AdminSidebar";
 
-const API = "http://localhost/api";
+const API = "https://code6technologies.com/catalogproapi";
 
 function Dashboard() {
   const navigate = useNavigate();
 
-    const getImageUrl = (path) => {
-  if (!path) return "";
+  /* --------------------------------
+     Image URL
+  -------------------------------- */
 
-  if (
-    path.startsWith("http://") ||
-    path.startsWith("https://")
-  ) {
-    return path;
-  }
+  const getImageUrl = (path) => {
+    if (!path || path === "null" || path === "undefined") {
+      return "";
+    }
 
-  return `${API}/${path.replace(/^\/+/, "")}`;
-};
+    return `${API}/${path}`;
+  };
 
+  /* --------------------------------
+     States
+  -------------------------------- */
 
   const [business, setBusiness] = useState(null);
+
   const [user, setUser] = useState(null);
 
   const [stats, setStats] = useState({
@@ -32,42 +35,16 @@ function Dashboard() {
     items_count: 0,
   });
 
-  
-
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem("catalogpro_token");
+  /* --------------------------------
+     Fetch Business
+  -------------------------------- */
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const storedBusiness =
-      localStorage.getItem("catalogpro_business");
-
-    const storedUser =
-      localStorage.getItem("catalogpro_user");
-
-    if (storedBusiness) {
-      setBusiness(JSON.parse(storedBusiness));
-    }
-
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-
-    fetchDashboardStats(token);
-  }, [navigate]);
-
-
-  const fetchDashboardStats = async (token) => {
+  const fetchBusiness = async (token) => {
     try {
-      setLoading(true);
-
       const response = await fetch(
-        "http://localhost/api/dashboard/stats.php",
+        `${API}/business/get.php`,
         {
           method: "GET",
           headers: {
@@ -79,13 +56,79 @@ function Dashboard() {
 
       const result = await response.json();
 
-      console.log("Dashboard Stats:", result);
+      console.log("Business API:", result);
 
       if (!result.success) {
-
         if (
-          result.message?.toLowerCase().includes("token") ||
-          result.message?.toLowerCase().includes("authentication")
+          result.message
+            ?.toLowerCase()
+            .includes("token") ||
+          result.message
+            ?.toLowerCase()
+            .includes("authentication")
+        ) {
+          handleLogout();
+          return;
+        }
+
+        return;
+      }
+
+      /*
+       * Fresh data from DB
+       */
+      setBusiness(result.data);
+
+      /*
+       * Update localStorage
+       */
+      localStorage.setItem(
+        "catalogpro_business",
+        JSON.stringify(result.data)
+      );
+
+    } catch (error) {
+      console.error(
+        "Business fetch error:",
+        error
+      );
+    }
+  };
+
+  /* --------------------------------
+     Fetch Dashboard Stats
+  -------------------------------- */
+
+  const fetchDashboardStats = async (token) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        `${API}/dashboard/stats.php`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      console.log(
+        "Dashboard Stats:",
+        result
+      );
+
+      if (!result.success) {
+        if (
+          result.message
+            ?.toLowerCase()
+            .includes("token") ||
+          result.message
+            ?.toLowerCase()
+            .includes("authentication")
         ) {
           handleLogout();
           return;
@@ -97,20 +140,20 @@ function Dashboard() {
       setStats(result.data);
 
     } catch (error) {
-
       console.error(
         "Dashboard stats error:",
         error
       );
-
     } finally {
       setLoading(false);
     }
   };
 
+  /* --------------------------------
+     Logout
+  -------------------------------- */
 
   const handleLogout = () => {
-
     localStorage.removeItem(
       "catalogpro_token"
     );
@@ -130,6 +173,52 @@ function Dashboard() {
     navigate("/login");
   };
 
+  /* --------------------------------
+     Load Dashboard
+  -------------------------------- */
+
+  useEffect(() => {
+    const token = localStorage.getItem(
+      "catalogpro_token"
+    );
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const storedUser =
+      localStorage.getItem(
+        "catalogpro_user"
+      );
+
+    if (storedUser) {
+      try {
+        setUser(
+          JSON.parse(storedUser)
+        );
+      } catch (error) {
+        console.error(
+          "User JSON error:",
+          error
+        );
+      }
+    }
+
+    /*
+     * IMPORTANT:
+     * Fetch business directly from DB/API.
+     * Do not use old localStorage business.
+     */
+    fetchBusiness(token);
+
+    fetchDashboardStats(token);
+
+  }, [navigate]);
+
+  /* --------------------------------
+     Loading
+  -------------------------------- */
 
   if (!business) {
     return (
@@ -139,13 +228,18 @@ function Dashboard() {
     );
   }
 
+  /* --------------------------------
+     Business Logo
+  -------------------------------- */
+
+  const businessLogo = business.logo?.trim();
 
   return (
     <div className="admin-layout">
 
       {/* SIDEBAR */}
 
-<AdminSidebar />
+      <AdminSidebar />
 
       {/* MAIN */}
 
@@ -156,16 +250,13 @@ function Dashboard() {
         <header className="admin-topbar">
 
           <div>
-
             <h1>Dashboard</h1>
 
             <p>
               Welcome back,{" "}
               {user?.name || "Admin"}
             </p>
-
           </div>
-
 
           <div className="admin-profile">
 
@@ -194,7 +285,7 @@ function Dashboard() {
         </header>
 
 
-        {/* BUSINESS */}
+        {/* BUSINESS CARD */}
 
         <section className="business-dashboard-card">
 
@@ -202,18 +293,27 @@ function Dashboard() {
 
             <div className="business-dashboard-logo">
 
-              {business.logo ? (
+              {businessLogo ? (
 
                 <img
-                  src={getImageUrl(business.logo)}
-                  alt={business.name}
+                  src={getImageUrl(
+                    business.logo
+                  )}
+                  alt={
+                    business.business_name
+                  }
+                  className="business-logo"
                 />
 
               ) : (
 
-                business.name
-                  ?.charAt(0)
-                  .toUpperCase()
+                <div className="business-logo-placeholder">
+
+                  {business.business_name
+                    ?.charAt(0)
+                    .toUpperCase()}
+
+                </div>
 
               )}
 
@@ -227,7 +327,7 @@ function Dashboard() {
               </span>
 
               <h2>
-                {business.name}
+                {business.business_name}
               </h2>
 
               <p>
@@ -242,12 +342,12 @@ function Dashboard() {
           <button
             className="dashboard-view-button"
             onClick={() =>
-    window.open(
-      `/${business.slug}`,
-      "_blank",
-      "noopener,noreferrer"
-    )
-  }
+              window.open(
+                `/${business.slug}`,
+                "_blank",
+                "noopener,noreferrer"
+              )
+            }
           >
             View Catalogue ↗
           </button>
@@ -330,7 +430,9 @@ function Dashboard() {
 
               <span>Catalogue</span>
 
-              <strong>Live</strong>
+              <strong>
+                Live
+              </strong>
 
             </div>
 
@@ -341,301 +443,310 @@ function Dashboard() {
 
         {/* CONTENT */}
 
-   <section className="dashboard-grid">
+        <div className="dashboard-grid">
 
-  {/* BUSINESS INFO */}
 
-  <div className="dashboard-panel">
+          {/* BUSINESS INFORMATION */}
 
-    <div className="panel-header">
+          <div className="dashboard-panel">
 
-      <div>
+            <div className="panel-header">
 
-        <h3>
-          Business Information
-        </h3>
+              <div>
 
-        <p>
-          Your public business details
-        </p>
+                <h3>
+                  Business Information
+                </h3>
 
-      </div>
+                <p>
+                  Your public business details
+                </p>
 
-      <button
-        onClick={() =>
-          navigate("/business")
-        }
-      >
-        Edit
-      </button>
+              </div>
 
-    </div>
+              <button
+                onClick={() =>
+                  navigate("/business")
+                }
+              >
+                Edit
+              </button>
 
+            </div>
 
-    <div className="business-details">
 
-      <div className="detail-row">
+            <div className="business-details">
 
-        <span>
-          Business Name
-        </span>
+              <div className="detail-row">
 
-        <strong>
-          {business.name}
-        </strong>
+                <span>
+                  Business Name
+                </span>
 
-      </div>
+                <strong>
+                  {business.business_name}
+                </strong>
 
+              </div>
 
-      <div className="detail-row">
 
-        <span>
-          Phone
-        </span>
+              <div className="detail-row">
 
-        <strong>
-          {business.phone ||
-            "Not added"}
-        </strong>
+                <span>
+                  Phone
+                </span>
 
-      </div>
+                <strong>
+                  {business.phone ||
+                    "Not added"}
+                </strong>
 
+              </div>
 
-      <div className="detail-row">
 
-        <span>
-          Email
-        </span>
+              <div className="detail-row">
 
-        <strong>
-          {business.email ||
-            "Not added"}
-        </strong>
+                <span>
+                  Email
+                </span>
 
-      </div>
+                <strong>
+                  {business.email ||
+                    "Not added"}
+                </strong>
 
+              </div>
 
-      <div className="detail-row">
 
-        <span>
-          WhatsApp
-        </span>
+              <div className="detail-row">
 
-        <strong>
-          {business.whatsapp ||
-            "Not added"}
-        </strong>
+                <span>
+                  WhatsApp
+                </span>
 
-      </div>
+                <strong>
+                  {business.whatsapp ||
+                    "Not added"}
+                </strong>
 
-    </div>
+              </div>
 
-  </div>
+            </div>
 
+          </div>
 
-  {/* QR CODE */}
 
-  <div className="dashboard-panel dashboard-qr-panel">
+          {/* QR CODE */}
 
-    <div className="panel-header">
+          <div className="dashboard-panel">
 
-      <div>
+            <div className="panel-header">
 
-        <h3>
-          Catalogue QR Code
-        </h3>
+              <div>
 
-        <p>
-          Scan to view your catalogue
-        </p>
+                <h3>
+                  Catalogue QR Code
+                </h3>
 
-      </div>
+                <p>
+                  Scan to view your catalogue
+                </p>
 
-    </div>
+              </div>
 
+            </div>
 
-    <div className="dashboard-qr-content">
 
-      <div className="dashboard-qr-box">
+            <div className="dashboard-qr-content">
 
-        <QRCodeCanvas
-          value={
-            `${window.location.origin}/${business.slug}`
-          }
-          size={160}
-          level="H"
-          includeMargin={true}
-        />
+              <div className="dashboard-qr-box">
 
-      </div>
+                <QRCodeCanvas
+                  value={
+                    `${window.location.origin}/${business.slug}`
+                  }
+                  size={160}
+                  level="H"
+                  includeMargin={true}
+                />
 
+              </div>
 
-      <div className="dashboard-qr-info">
 
-        <strong>
-          {business.name}
-        </strong>
+              <div className="dashboard-qr-info">
 
-        <span>
-          /{business.slug}
-        </span>
+                <strong>
+                  {business.business_name}
+                </strong>
 
+                <span>
+                  /{business.slug}
+                </span>
 
-        <button
-          type="button"
-          className="dashboard-qr-download"
-          onClick={() => {
 
-            const canvas =
-              document.querySelector(
-                ".dashboard-qr-box canvas"
-              );
+                <button
+                  type="button"
+                  className="dashboard-qr-download"
+                  onClick={() => {
 
-            if (!canvas) {
-              alert("QR Code not found.");
-              return;
-            }
+                    const canvas =
+                      document.querySelector(
+                        ".dashboard-qr-box canvas"
+                      );
 
-            const link =
-              document.createElement("a");
+                    if (!canvas) {
+                      alert(
+                        "QR Code not found."
+                      );
+                      return;
+                    }
 
-            link.download =
-              `${business.slug}-qr-code.png`;
+                    const link =
+                      document.createElement(
+                        "a"
+                      );
 
-            link.href =
-              canvas.toDataURL("image/png");
+                    link.download =
+                      `${business.slug}-qr-code.png`;
 
-            link.click();
+                    link.href =
+                      canvas.toDataURL(
+                        "image/png"
+                      );
 
-          }}
-        >
-          Download QR
-        </button>
+                    link.click();
 
+                  }}
+                >
+                  Download QR
+                </button>
 
-        <button
-          type="button"
-          className="dashboard-qr-view"
-          onClick={() =>
-            window.open(
-              `/${business.slug}`,
-              "_blank",
-              "noopener,noreferrer"
-            )
-          }
-        >
-          View Catalogue ↗
-        </button>
 
-      </div>
+                <button
+                  type="button"
+                  className="dashboard-qr-view"
+                  onClick={() =>
+                    window.open(
+                      `/${business.slug}`,
+                      "_blank",
+                      "noopener,noreferrer"
+                    )
+                  }
+                >
+                  View Catalogue ↗
+                </button>
 
-    </div>
+              </div>
 
-  </div>
+            </div>
 
+          </div>
 
-  {/* QUICK ACTIONS */}
+       
 
-  <div className="dashboard-panel">
+        {/* QUICK ACTIONS */}
 
-    <div className="panel-header">
+        <div className="dashboard-panel">
 
-      <div>
+          <div className="panel-header">
 
-        <h3>
-          Quick Actions
-        </h3>
+            <div>
 
-        <p>
-          Manage your catalogue
-        </p>
+              <h3>
+                Quick Actions
+              </h3>
 
-      </div>
+              <p>
+                Manage your catalogue
+              </p>
 
-    </div>
+            </div>
 
+          </div>
 
-    <div className="quick-actions">
 
-      <button
-        onClick={() =>
-          navigate("/business")
-        }
-      >
+          <div className="quick-actions">
 
-        <span>
-          ◈
-        </span>
+            <button
+              onClick={() =>
+                navigate("/business")
+              }
+            >
 
-        <div>
+              <span>
+                ◈
+              </span>
 
-          <strong>
-            Business Profile
-          </strong>
+              <div>
 
-          <small>
-            Update business details
-          </small>
+                <strong>
+                  Business Profile
+                </strong>
+
+                <small>
+                  Update business details
+                </small>
+
+              </div>
+
+            </button>
+
+
+            <button
+              onClick={() =>
+                navigate("/categories")
+              }
+            >
+
+              <span>
+                ☷
+              </span>
+
+              <div>
+
+                <strong>
+                  Manage Categories
+                </strong>
+
+                <small>
+                  Add or edit categories
+                </small>
+
+              </div>
+
+            </button>
+
+
+            <button
+              onClick={() =>
+                navigate("/items")
+              }
+            >
+
+              <span>
+                ▣
+              </span>
+
+              <div>
+
+                <strong>
+                  Manage Items
+                </strong>
+
+                <small>
+                  Add products and services
+                </small>
+
+              </div>
+
+            </button>
+
+          </div>
 
         </div>
 
-      </button>
+         </div>
 
-
-      <button
-        onClick={() =>
-          navigate("/categories")
-        }
-      >
-
-        <span>
-          ☷
-        </span>
-
-        <div>
-
-          <strong>
-            Manage Categories
-          </strong>
-
-          <small>
-            Add or edit categories
-          </small>
-
-        </div>
-
-      </button>
-
-
-      <button
-        onClick={() =>
-          navigate("/items")
-        }
-      >
-
-        <span>
-          ▣
-        </span>
-
-        <div>
-
-          <strong>
-            Manage Items
-          </strong>
-
-          <small>
-            Add products and services
-          </small>
-
-        </div>
-
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
 
       </main>
 

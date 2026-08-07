@@ -30,7 +30,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://localhost/api/auth/login.php",
+        "https://code6technologies.com/catalogproapi/auth/login.php",
         {
           method: "POST",
           headers: {
