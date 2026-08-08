@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
+const API = "https://code6technologies.com/catalogproapi";
+
 function Login() {
   const navigate = useNavigate();
 
@@ -14,10 +16,12 @@ function Login() {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
     setError("");
   };
@@ -26,40 +30,69 @@ function Login() {
     e.preventDefault();
 
     setError("");
-    setLoading(true);
+
+    if (!form.email.trim()) {
+      setError("Email address is required.");
+      return;
+    }
+
+    if (!form.password) {
+      setError("Password is required.");
+      return;
+    }
 
     try {
+      setLoading(true);
+
       const response = await fetch(
-        "https://code6technologies.com/catalogproapi/auth/login.php",
+        `${API}/auth/login.php`,
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(form),
+
+          body: JSON.stringify({
+            email: form.email.trim(),
+            password: form.password,
+          }),
         }
       );
 
       const result = await response.json();
 
-      if (!result.success) {
+      console.log("Login Result:", result);
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
         setError(
-          result.message || "Invalid email or password"
+          result.message ||
+            "Invalid email or password."
         );
+
         return;
       }
 
       /*
-       * Save JWT token
-       */
+      |--------------------------------------------------------------------------
+      | Save Authentication Token
+      |--------------------------------------------------------------------------
+      */
+
       localStorage.setItem(
         "catalogpro_token",
         result.data.token
       );
 
       /*
-       * Save token expiry
-       */
+      |--------------------------------------------------------------------------
+      | Save Token Expiry
+      |--------------------------------------------------------------------------
+      */
+
       if (result.data.expires_at) {
         localStorage.setItem(
           "catalogpro_expires_at",
@@ -68,32 +101,53 @@ function Login() {
       }
 
       /*
-       * Save user
-       */
-      localStorage.setItem(
-        "catalogpro_user",
-        JSON.stringify(result.data.user)
-      );
+      |--------------------------------------------------------------------------
+      | Save User
+      |--------------------------------------------------------------------------
+      */
+
+      if (result.data.user) {
+        localStorage.setItem(
+          "catalogpro_user",
+          JSON.stringify(
+            result.data.user
+          )
+        );
+      }
 
       /*
-       * Save business
-       */
-      localStorage.setItem(
-        "catalogpro_business",
-        JSON.stringify(result.data.business)
-      );
+      |--------------------------------------------------------------------------
+      | Save Business
+      |--------------------------------------------------------------------------
+      */
+
+      if (result.data.business) {
+        localStorage.setItem(
+          "catalogpro_business",
+          JSON.stringify(
+            result.data.business
+          )
+        );
+      }
 
       /*
-       * Go to dashboard
-       */
+      |--------------------------------------------------------------------------
+      | Login Success
+      |--------------------------------------------------------------------------
+      */
+
       navigate("/dashboard");
 
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch (err) {
+      console.error(
+        "Login error:",
+        err
+      );
 
       setError(
         "Unable to connect to server. Please try again."
       );
+
     } finally {
       setLoading(false);
     }
@@ -104,13 +158,17 @@ function Login() {
 
       <div className="login-card">
 
+        {/* BRAND */}
+
         <div className="login-brand">
 
           <div className="login-logo">
             C
           </div>
 
-          <h1>CatalogPro</h1>
+          <h1>
+            CatalogPro
+          </h1>
 
           <p>
             Manage your digital catalogue
@@ -118,9 +176,14 @@ function Login() {
 
         </div>
 
+
+        {/* TITLE */}
+
         <div className="login-title">
 
-          <h2>Welcome Back</h2>
+          <h2>
+            Welcome Back
+          </h2>
 
           <p>
             Sign in to continue to your dashboard
@@ -128,13 +191,23 @@ function Login() {
 
         </div>
 
+
+        {/* ERROR */}
+
         {error && (
           <div className="login-error">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+
+        {/* FORM */}
+
+        <form
+          onSubmit={handleSubmit}
+        >
+
+          {/* EMAIL */}
 
           <div className="form-group">
 
@@ -155,6 +228,9 @@ function Login() {
 
           </div>
 
+
+          {/* PASSWORD */}
+
           <div className="form-group">
 
             <label htmlFor="password">
@@ -173,6 +249,9 @@ function Login() {
             />
 
           </div>
+
+
+          {/* LOGIN BUTTON */}
 
           <button
             type="submit"
@@ -193,10 +272,48 @@ function Login() {
 
         </form>
 
+
+        {/* REGISTER */}
+
+        <div className="login-register">
+
+          <span>
+            Don't have an account?
+          </span>
+
+          <button
+            type="button"
+            onClick={() =>
+              navigate("/register")
+            }
+          >
+            Create Account
+          </button>
+
+        </div>
+
+
+        {/* HOME */}
+
+        <button
+          type="button"
+          className="auth-home-button"
+          onClick={() =>
+            navigate("/")
+          }
+        >
+          ← Back to Home
+        </button>
+
+
+        {/* FOOTER */}
+
         <div className="login-footer">
+
           <p>
             © {new Date().getFullYear()} CatalogPro
           </p>
+
         </div>
 
       </div>

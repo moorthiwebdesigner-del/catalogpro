@@ -1,51 +1,123 @@
 import { useState } from "react";
-import { useNavigate, useLocation  } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
 function AdminSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [open, setOpen] = useState(false);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Close Mobile Menu
+  |--------------------------------------------------------------------------
+  */
 
   const closeMenu = () => {
     setOpen(false);
   };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Navigate
+  |--------------------------------------------------------------------------
+  */
 
   const goTo = (path) => {
     navigate(path);
     closeMenu();
   };
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | Logout
+  |--------------------------------------------------------------------------
+  */
+
   const handleLogout = () => {
-    localStorage.removeItem("catalogpro_token");
-    localStorage.removeItem("catalogpro_expires_at");
-    localStorage.removeItem("catalogpro_user");
-    localStorage.removeItem("catalogpro_business");
+    localStorage.removeItem(
+      "catalogpro_token"
+    );
+
+    localStorage.removeItem(
+      "catalogpro_expires_at"
+    );
+
+    localStorage.removeItem(
+      "catalogpro_user"
+    );
+
+    localStorage.removeItem(
+      "catalogpro_business"
+    );
 
     navigate("/login");
   };
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | View Catalogue
+  |--------------------------------------------------------------------------
+  */
+
   const viewCatalogue = () => {
     const stored =
-      localStorage.getItem("catalogpro_business");
+      localStorage.getItem(
+        "catalogpro_business"
+      );
 
-    if (!stored) return;
+    if (!stored) {
+      return;
+    }
 
-    const business = JSON.parse(stored);
+    try {
+      const business =
+        JSON.parse(stored);
 
-    if (!business.slug) return;
+      if (!business?.slug) {
+        return;
+      }
 
-    window.open(
-      `/${business.slug}`,
-      "_blank",
-      "noopener,noreferrer"
-    );
+      window.open(
+        `/${business.slug}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
 
-    closeMenu();
+      closeMenu();
+
+    } catch (error) {
+      console.error(
+        "Business JSON error:",
+        error
+      );
+    }
   };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Active Menu
+  |--------------------------------------------------------------------------
+  */
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
 
   return (
     <>
-      {/* MOBILE HEADER */}
+      {/* =========================================================
+          MOBILE HEADER
+      ========================================================= */}
 
       <header className="mobile-admin-header">
 
@@ -53,11 +125,14 @@ function AdminSidebar() {
           type="button"
           className="mobile-menu-button"
           onClick={() => setOpen(true)}
+          aria-label="Open menu"
         >
           ☰
         </button>
 
+
         <div className="mobile-admin-title">
+
           <strong>
             CatalogPro
           </strong>
@@ -65,12 +140,15 @@ function AdminSidebar() {
           <span>
             Admin Panel
           </span>
+
         </div>
 
       </header>
 
 
-      {/* MOBILE OVERLAY */}
+      {/* =========================================================
+          MOBILE OVERLAY
+      ========================================================= */}
 
       {open && (
         <div
@@ -80,7 +158,9 @@ function AdminSidebar() {
       )}
 
 
-      {/* SIDEBAR */}
+      {/* =========================================================
+          SIDEBAR
+      ========================================================= */}
 
       <aside
         className={
@@ -90,13 +170,20 @@ function AdminSidebar() {
         }
       >
 
+
+        {/* =======================================================
+            BRAND
+        ======================================================= */}
+
         <div className="admin-brand">
 
           <div className="admin-logo">
             C
           </div>
 
+
           <div>
+
             <h2>
               CatalogPro
             </h2>
@@ -104,91 +191,152 @@ function AdminSidebar() {
             <span>
               Admin Panel
             </span>
+
           </div>
 
         </div>
 
 
-        {/* CLOSE BUTTON - MOBILE */}
+        {/* =======================================================
+            MOBILE CLOSE BUTTON
+        ======================================================= */}
 
         <button
           type="button"
           className="mobile-sidebar-close"
           onClick={closeMenu}
+          aria-label="Close menu"
         >
           ×
         </button>
 
 
+        {/* =======================================================
+            NAVIGATION
+        ======================================================= */}
+
         <nav className="admin-nav">
 
+
+          {/* DASHBOARD */}
+
           <button
-           type="button"
-  className={`admin-nav-item ${
-    location.pathname === "/dashboard" ? "active" : ""
-  }`}
+            type="button"
+            className={`admin-nav-item ${
+              isActive("/dashboard")
+                ? "active"
+                : ""
+            }`}
             onClick={() =>
               goTo("/dashboard")
             }
           >
-            <span>▦</span>
+            <span>
+              ▦
+            </span>
+
             Dashboard
           </button>
 
 
+          {/* BUSINESS PROFILE */}
+
           <button
-           type="button"
-  className={`admin-nav-item ${
-    location.pathname === "/business" ? "active" : ""
-  }`}
+            type="button"
+            className={`admin-nav-item ${
+              isActive("/business")
+                ? "active"
+                : ""
+            }`}
             onClick={() =>
               goTo("/business")
             }
           >
-            <span>◈</span>
+            <span>
+              ◈
+            </span>
+
             Business Profile
           </button>
 
 
+          {/* CATEGORIES */}
+
           <button
             type="button"
-  className={`admin-nav-item ${
-    location.pathname === "/categories" ? "active" : ""
-  }`}
+            className={`admin-nav-item ${
+              isActive("/categories")
+                ? "active"
+                : ""
+            }`}
             onClick={() =>
               goTo("/categories")
             }
           >
-            <span>☷</span>
+            <span>
+              ☷
+            </span>
+
             Categories
           </button>
 
 
+          {/* ITEMS */}
+
           <button
-           type="button"
-  className={`admin-nav-item ${
-    location.pathname === "/items" ? "active" : ""
-  }`}
+            type="button"
+            className={`admin-nav-item ${
+              isActive("/items")
+                ? "active"
+                : ""
+            }`}
             onClick={() =>
               goTo("/items")
             }
           >
-            <span>▣</span>
+            <span>
+              ▣
+            </span>
+
             Items
           </button>
 
+          <button
+            type="button"
+            className={`admin-nav-item ${
+              isActive("/payment-history")
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              goTo("/payment-history")
+            }
+          >
+  <span>◷</span>
+  Payment History
+</button>
+
+
+          {/* VIEW CATALOGUE */}
 
           <button
             type="button"
             className="admin-nav-item"
             onClick={viewCatalogue}
           >
-            <span>↗</span>
+            <span>
+              ↗
+            </span>
+
             View Catalogue
           </button>
 
         </nav>
 
+
+        {/* =======================================================
+            SIDEBAR BOTTOM
+        ======================================================= */}
 
         <div className="admin-sidebar-bottom">
 
@@ -197,7 +345,10 @@ function AdminSidebar() {
             className="admin-nav-item logout-button"
             onClick={handleLogout}
           >
-            <span>↪</span>
+            <span>
+              ↪
+            </span>
+
             Logout
           </button>
 

@@ -4,30 +4,47 @@ import { QRCodeCanvas } from "qrcode.react";
 import "../App.css";
 import AdminSidebar from "../components/AdminSidebar";
 
-const API = "https://code6technologies.com/catalogproapi";
+const API =
+  "https://code6technologies.com/catalogproapi";
 
 function Dashboard() {
   const navigate = useNavigate();
 
-  /* --------------------------------
-     Image URL
-  -------------------------------- */
+  // =========================================================
+  // IMAGE URL
+  // =========================================================
 
   const getImageUrl = (path) => {
-    if (!path || path === "null" || path === "undefined") {
+    if (
+      !path ||
+      path === "null" ||
+      path === "undefined"
+    ) {
       return "";
+    }
+
+    if (
+      path.startsWith("http://") ||
+      path.startsWith("https://")
+    ) {
+      return path;
     }
 
     return `${API}/${path}`;
   };
 
-  /* --------------------------------
-     States
-  -------------------------------- */
+  // =========================================================
+  // STATES
+  // =========================================================
 
   const [business, setBusiness] = useState(null);
 
   const [user, setUser] = useState(null);
+
+  const [subscription, setSubscription] =
+    useState(null);
+
+    const [payments, setPayments] = useState([]);
 
   const [stats, setStats] = useState({
     business_count: 1,
@@ -35,123 +52,12 @@ function Dashboard() {
     items_count: 0,
   });
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  /* --------------------------------
-     Fetch Business
-  -------------------------------- */
-
-  const fetchBusiness = async (token) => {
-    try {
-      const response = await fetch(
-        `${API}/business/get.php`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const result = await response.json();
-
-      console.log("Business API:", result);
-
-      if (!result.success) {
-        if (
-          result.message
-            ?.toLowerCase()
-            .includes("token") ||
-          result.message
-            ?.toLowerCase()
-            .includes("authentication")
-        ) {
-          handleLogout();
-          return;
-        }
-
-        return;
-      }
-
-      /*
-       * Fresh data from DB
-       */
-      setBusiness(result.data);
-
-      /*
-       * Update localStorage
-       */
-      localStorage.setItem(
-        "catalogpro_business",
-        JSON.stringify(result.data)
-      );
-
-    } catch (error) {
-      console.error(
-        "Business fetch error:",
-        error
-      );
-    }
-  };
-
-  /* --------------------------------
-     Fetch Dashboard Stats
-  -------------------------------- */
-
-  const fetchDashboardStats = async (token) => {
-    try {
-      setLoading(true);
-
-      const response = await fetch(
-        `${API}/dashboard/stats.php`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const result = await response.json();
-
-      console.log(
-        "Dashboard Stats:",
-        result
-      );
-
-      if (!result.success) {
-        if (
-          result.message
-            ?.toLowerCase()
-            .includes("token") ||
-          result.message
-            ?.toLowerCase()
-            .includes("authentication")
-        ) {
-          handleLogout();
-          return;
-        }
-
-        return;
-      }
-
-      setStats(result.data);
-
-    } catch (error) {
-      console.error(
-        "Dashboard stats error:",
-        error
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* --------------------------------
-     Logout
-  -------------------------------- */
+  // =========================================================
+  // LOGOUT
+  // =========================================================
 
   const handleLogout = () => {
     localStorage.removeItem(
@@ -173,84 +79,475 @@ function Dashboard() {
     navigate("/login");
   };
 
-  /* --------------------------------
-     Load Dashboard
-  -------------------------------- */
+  // =========================================================
+  // AUTHENTICATION ERROR
+  // =========================================================
 
-  useEffect(() => {
-    const token = localStorage.getItem(
-      "catalogpro_token"
-    );
-
-    if (!token) {
-      navigate("/login");
-      return;
+  const isAuthenticationError = (
+    message
+  ) => {
+    if (!message) {
+      return false;
     }
 
-    const storedUser =
-      localStorage.getItem(
-        "catalogpro_user"
+    const text =
+      message.toLowerCase();
+
+    return (
+      text.includes("token") ||
+      text.includes("authentication") ||
+      text.includes("authorization")
+    );
+  };
+
+  // =========================================================
+  // FETCH BUSINESS
+  // =========================================================
+
+  const fetchBusiness = async (token) => {
+    try {
+      const response = await fetch(
+        `${API}/business/get.php`,
+        {
+          method: "GET",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+          },
+        }
       );
 
-    if (storedUser) {
+      const result =
+        await response.json();
+
+      console.log(
+        "Business API:",
+        result
+      );
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+        if (
+          isAuthenticationError(
+            result.message
+          )
+        ) {
+          handleLogout();
+        }
+
+        return;
+      }
+
+      setBusiness(result.data);
+
+      localStorage.setItem(
+        "catalogpro_business",
+        JSON.stringify(
+          result.data
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Business fetch error:",
+        error
+      );
+    }
+  };
+
+  // =========================================================
+  // FETCH DASHBOARD STATS
+  // =========================================================
+
+  const fetchDashboardStats =
+    async (token) => {
       try {
-        setUser(
-          JSON.parse(storedUser)
+        setLoading(true);
+
+        const response = await fetch(
+          `${API}/dashboard/stats.php`,
+          {
+            method: "GET",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+            },
+          }
+        );
+
+        const result =
+          await response.json();
+
+        console.log(
+          "Dashboard Stats:",
+          result
+        );
+
+        if (
+          !response.ok ||
+          !result.success
+        ) {
+          if (
+            isAuthenticationError(
+              result.message
+            )
+          ) {
+            handleLogout();
+          }
+
+          return;
+        }
+
+        setStats(
+          result.data || {
+            business_count: 1,
+            categories_count: 0,
+            items_count: 0,
+          }
         );
       } catch (error) {
         console.error(
-          "User JSON error:",
+          "Dashboard stats error:",
+          error
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  // =========================================================
+  // FETCH SUBSCRIPTION
+  // =========================================================
+
+  const fetchSubscription =
+    async (token) => {
+      try {
+        const response = await fetch(
+          `${API}/subscription/get.php`,
+          {
+            method: "GET",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+            },
+          }
+        );
+
+        const result =
+          await response.json();
+
+        console.log(
+          "Subscription API:",
+          result
+        );
+
+        if (
+          !response.ok ||
+          !result.success
+        ) {
+          if (
+            isAuthenticationError(
+              result.message
+            )
+          ) {
+            handleLogout();
+          }
+
+          return;
+        }
+
+        setSubscription(
+          result.data
+        );
+      } catch (error) {
+        console.error(
+          "Subscription fetch error:",
           error
         );
       }
+    };
+
+
+    // =========================================================
+// FETCH PAYMENT HISTORY
+// =========================================================
+
+const fetchPaymentHistory = async (token) => {
+  try {
+    const response = await fetch(
+      `${API}/payment-history/list.php`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const result = await response.json();
+
+    console.log(
+      "Payment History API:",
+      result
+    );
+
+    if (
+      !response.ok ||
+      !result.success
+    ) {
+      if (
+        isAuthenticationError(
+          result.message
+        )
+      ) {
+        handleLogout();
+      }
+
+      return;
     }
 
-    /*
-     * IMPORTANT:
-     * Fetch business directly from DB/API.
-     * Do not use old localStorage business.
-     */
-    fetchBusiness(token);
+    const paymentData =
+      Array.isArray(result.data)
+        ? result.data
+        : Array.isArray(
+            result.data?.payments
+          )
+        ? result.data.payments
+        : [];
 
-    fetchDashboardStats(token);
+    setPayments(paymentData);
 
-  }, [navigate]);
+  } catch (error) {
+    console.error(
+      "Payment History Error:",
+      error
+    );
+  }
+};
+  // =========================================================
+  // LOAD DASHBOARD
+  // =========================================================
 
-  /* --------------------------------
-     Loading
-  -------------------------------- */
+useEffect(() => {
+  const token = localStorage.getItem("catalogpro_token");
+
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  // ================================
+  // LOAD USER FROM CACHE
+  // ================================
+
+  const storedUser = localStorage.getItem("catalogpro_user");
+
+  if (storedUser) {
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch (error) {
+      console.error("User JSON error:", error);
+    }
+  }
+
+  // ================================
+  // LOAD BUSINESS FROM CACHE FIRST
+  // ================================
+
+  const storedBusiness = localStorage.getItem(
+    "catalogpro_business"
+  );
+
+  if (storedBusiness) {
+    try {
+      setBusiness(JSON.parse(storedBusiness));
+    } catch (error) {
+      console.error("Business JSON error:", error);
+      localStorage.removeItem("catalogpro_business");
+    }
+  }
+
+  // ================================
+  // API REQUESTS
+  // ================================
+
+  fetchBusiness(token);
+  fetchDashboardStats(token);
+  fetchSubscription(token);
+  fetchPaymentHistory(token);
+
+}, [navigate]);
+
+  // =========================================================
+  // LOADING SCREEN
+  // =========================================================
 
   if (!business) {
     return (
-      <div className="dashboard-loading">
-        Loading Dashboard...
+      <div className="admin-layout">
+        <AdminSidebar />
+
+        <main className="admin-main">
+          <div className="dashboard-loading">
+            <p>
+              Loading Dashboard...
+            </p>
+          </div>
+        </main>
       </div>
     );
   }
 
-  /* --------------------------------
-     Business Logo
-  -------------------------------- */
+  // =========================================================
+  // BUSINESS LOGO
+  // =========================================================
 
-  const businessLogo = business.logo?.trim();
+  const businessLogo =
+    business.logo?.trim();
+
+  // =========================================================
+  // CATALOGUE URL
+  // =========================================================
+
+  const catalogueUrl =
+    `${window.location.origin}/${business.slug}`;
+
+
+
+    // =========================================================
+// FORMAT AMOUNT
+// =========================================================
+
+const formatAmount = (amount) => {
+  return Number(
+    amount || 0
+  ).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+// =========================================================
+// FORMAT DATE
+// =========================================================
+
+const formatDate = (date) => {
+  if (!date) {
+    return "-";
+  }
+
+  const parsedDate =
+    new Date(date);
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime()
+    )
+  ) {
+    return date;
+  }
+
+  return parsedDate.toLocaleDateString(
+    "en-IN",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }
+  );
+};
+
+  // =========================================================
+  // SUBSCRIPTION REMAINING DAYS
+  // =========================================================
+
+  const getRemainingDays = () => {
+    if (
+      !subscription ||
+      !subscription.end_date
+    ) {
+      return 0;
+    }
+
+    const today =
+      new Date();
+
+    const endDate =
+      new Date(
+        subscription.end_date
+      );
+
+    const difference =
+      endDate.getTime() -
+      today.getTime();
+
+    const remainingDays =
+      Math.ceil(
+        difference /
+          (1000 * 60 * 60 * 24)
+      );
+
+    return Math.max(
+      0,
+      remainingDays
+    );
+  };
+
+  const remainingDays =
+    getRemainingDays();
+
+  // =========================================================
+  // SUBSCRIPTION STATUS
+  // =========================================================
+
+  const subscriptionStatus =
+    subscription?.status
+      ? subscription.status.toLowerCase()
+      : "unknown";
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
     <div className="admin-layout">
 
-      {/* SIDEBAR */}
+      {/* =====================================================
+          SIDEBAR
+      ===================================================== */}
 
       <AdminSidebar />
 
-      {/* MAIN */}
+      {/* =====================================================
+          MAIN
+      ===================================================== */}
 
       <main className="admin-main">
 
-        {/* TOPBAR */}
+        {/* ===================================================
+            TOPBAR
+        =================================================== */}
 
         <header className="admin-topbar">
 
           <div>
-            <h1>Dashboard</h1>
+            <h1>
+              Dashboard
+            </h1>
 
             <p>
               Welcome back,{" "}
@@ -261,15 +558,12 @@ function Dashboard() {
           <div className="admin-profile">
 
             <div className="admin-avatar">
-
               {(user?.name || "A")
                 .charAt(0)
                 .toUpperCase()}
-
             </div>
 
             <div>
-
               <strong>
                 {user?.name || "Admin"}
               </strong>
@@ -277,15 +571,15 @@ function Dashboard() {
               <small>
                 {user?.email || ""}
               </small>
-
             </div>
 
           </div>
 
         </header>
 
-
-        {/* BUSINESS CARD */}
+        {/* ===================================================
+            BUSINESS CARD
+        =================================================== */}
 
         <section className="business-dashboard-card">
 
@@ -294,7 +588,6 @@ function Dashboard() {
             <div className="business-dashboard-logo">
 
               {businessLogo ? (
-
                 <img
                   src={getImageUrl(
                     business.logo
@@ -304,21 +597,15 @@ function Dashboard() {
                   }
                   className="business-logo"
                 />
-
               ) : (
-
                 <div className="business-logo-placeholder">
-
                   {business.business_name
                     ?.charAt(0)
                     .toUpperCase()}
-
                 </div>
-
               )}
 
             </div>
-
 
             <div>
 
@@ -338,12 +625,12 @@ function Dashboard() {
 
           </div>
 
-
           <button
+            type="button"
             className="dashboard-view-button"
             onClick={() =>
               window.open(
-                `/${business.slug}`,
+                catalogueUrl,
                 "_blank",
                 "noopener,noreferrer"
               )
@@ -354,10 +641,13 @@ function Dashboard() {
 
         </section>
 
-
-        {/* LIVE STATS */}
+        {/* ===================================================
+            LIVE STATS
+        =================================================== */}
 
         <section className="dashboard-stats">
+
+          {/* BUSINESS */}
 
           <div className="dashboard-stat-card">
 
@@ -366,17 +656,18 @@ function Dashboard() {
             </div>
 
             <div>
-
-              <span>Business</span>
+              <span>
+                Business
+              </span>
 
               <strong>
                 {stats.business_count}
               </strong>
-
             </div>
 
           </div>
 
+          {/* CATEGORIES */}
 
           <div className="dashboard-stat-card">
 
@@ -385,19 +676,20 @@ function Dashboard() {
             </div>
 
             <div>
-
-              <span>Categories</span>
+              <span>
+                Categories
+              </span>
 
               <strong>
                 {loading
                   ? "..."
                   : stats.categories_count}
               </strong>
-
             </div>
 
           </div>
 
+          {/* ITEMS */}
 
           <div className="dashboard-stat-card">
 
@@ -406,19 +698,20 @@ function Dashboard() {
             </div>
 
             <div>
-
-              <span>Items</span>
+              <span>
+                Items
+              </span>
 
               <strong>
                 {loading
                   ? "..."
                   : stats.items_count}
               </strong>
-
             </div>
 
           </div>
 
+          {/* CATALOGUE */}
 
           <div className="dashboard-stat-card">
 
@@ -427,26 +720,100 @@ function Dashboard() {
             </div>
 
             <div>
-
-              <span>Catalogue</span>
+              <span>
+                Catalogue
+              </span>
 
               <strong>
                 Live
               </strong>
-
             </div>
 
           </div>
 
         </section>
 
+        {/* ===================================================
+            SUBSCRIPTION CARD
+        =================================================== */}
 
-        {/* CONTENT */}
+        <section className="dashboard-subscription-card">
+
+          <div className="subscription-info">
+
+            <span className="dashboard-label">
+              CURRENT PLAN
+            </span>
+
+            <h2>
+              {subscription?.plan_name ||
+                "No Plan"}
+            </h2>
+
+            <p>
+              ₹
+              {Number(
+                subscription?.amount || 0
+              ).toLocaleString("en-IN")}
+              {" / "}
+              {subscription?.plan_name
+                ?.toLowerCase()
+                .includes("free")
+                ? "14 days"
+                : "month"}
+            </p>
+
+          </div>
+
+          <div className="subscription-status">
+
+            <span
+              className={`subscription-badge ${subscriptionStatus}`}
+            >
+              {subscription?.status
+                ? subscription.status.toUpperCase()
+                : "UNKNOWN"}
+            </span>
+
+            <strong>
+              {remainingDays}{" "}
+              days remaining
+            </strong>
+
+            <small>
+              Expires:{" "}
+              {subscription?.end_date
+                ? new Date(
+                    subscription.end_date
+                  ).toLocaleDateString(
+                    "en-IN"
+                  )
+                : "-"}
+            </small>
+   </div>
+            <button
+              type="button"
+              className="subscription-upgrade-button"
+              onClick={() =>
+                navigate("/plans")
+              }
+            >
+              Upgrade Plan
+            </button>
+
+       
+
+        </section>
+
+        {/* ===================================================
+            CONTENT GRID
+        =================================================== */}
 
         <div className="dashboard-grid">
 
-
-          {/* BUSINESS INFORMATION */}
+          {/* =================================================
+              BUSINESS INFORMATION
+          ================================================= */}
 
           <div className="dashboard-panel">
 
@@ -465,6 +832,7 @@ function Dashboard() {
               </div>
 
               <button
+                type="button"
                 onClick={() =>
                   navigate("/business")
                 }
@@ -473,7 +841,6 @@ function Dashboard() {
               </button>
 
             </div>
-
 
             <div className="business-details">
 
@@ -489,7 +856,6 @@ function Dashboard() {
 
               </div>
 
-
               <div className="detail-row">
 
                 <span>
@@ -503,7 +869,6 @@ function Dashboard() {
 
               </div>
 
-
               <div className="detail-row">
 
                 <span>
@@ -516,7 +881,6 @@ function Dashboard() {
                 </strong>
 
               </div>
-
 
               <div className="detail-row">
 
@@ -535,8 +899,9 @@ function Dashboard() {
 
           </div>
 
-
-          {/* QR CODE */}
+          {/* =================================================
+              QR CODE
+          ================================================= */}
 
           <div className="dashboard-panel">
 
@@ -556,22 +921,18 @@ function Dashboard() {
 
             </div>
 
-
             <div className="dashboard-qr-content">
 
               <div className="dashboard-qr-box">
 
                 <QRCodeCanvas
-                  value={
-                    `${window.location.origin}/${business.slug}`
-                  }
+                  value={catalogueUrl}
                   size={160}
                   level="H"
                   includeMargin={true}
                 />
 
               </div>
-
 
               <div className="dashboard-qr-info">
 
@@ -582,7 +943,6 @@ function Dashboard() {
                 <span>
                   /{business.slug}
                 </span>
-
 
                 <button
                   type="button"
@@ -621,13 +981,12 @@ function Dashboard() {
                   Download QR
                 </button>
 
-
                 <button
                   type="button"
                   className="dashboard-qr-view"
                   onClick={() =>
                     window.open(
-                      `/${business.slug}`,
+                      catalogueUrl,
                       "_blank",
                       "noopener,noreferrer"
                     )
@@ -642,111 +1001,281 @@ function Dashboard() {
 
           </div>
 
-       
+          {/* =================================================
+              QUICK ACTIONS
+          ================================================= */}
 
-        {/* QUICK ACTIONS */}
+          <div className="dashboard-panel">
 
-        <div className="dashboard-panel">
+            <div className="panel-header">
 
-          <div className="panel-header">
+              <div>
 
-            <div>
+                <h3>
+                  Quick Actions
+                </h3>
 
-              <h3>
-                Quick Actions
-              </h3>
+                <p>
+                  Manage your catalogue
+                </p>
 
-              <p>
-                Manage your catalogue
-              </p>
+              </div>
+
+            </div>
+
+            <div className="quick-actions">
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/business")
+                }
+              >
+
+                <span>
+                  ◈
+                </span>
+
+                <div>
+
+                  <strong>
+                    Business Profile
+                  </strong>
+
+                  <small>
+                    Update business details
+                  </small>
+
+                </div>
+
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/categories")
+                }
+              >
+
+                <span>
+                  ☷
+                </span>
+
+                <div>
+
+                  <strong>
+                    Manage Categories
+                  </strong>
+
+                  <small>
+                    Add or edit categories
+                  </small>
+
+                </div>
+
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/items")
+                }
+              >
+
+                <span>
+                  ▣
+                </span>
+
+                <div>
+
+                  <strong>
+                    Manage Items
+                  </strong>
+
+                  <small>
+                    Add products and services
+                  </small>
+
+                </div>
+
+              </button>
 
             </div>
 
           </div>
 
 
-          <div className="quick-actions">
+          
+        <div className="dashboard-panel dashboard-payment-panel">
 
-            <button
-              onClick={() =>
-                navigate("/business")
-              }
+  <div className="panel-header">
+
+    <div>
+      <h3>
+        Payment History
+      </h3>
+
+      <p>
+        View your subscription payments
+      </p>
+    </div>
+
+    <button
+      type="button"
+      onClick={() =>
+        navigate("/payment-history")
+      }
+    >
+      View All
+    </button>
+
+  </div>
+
+
+  <div className="payment-history-table-wrapper">
+
+    <table className="payment-history-table">
+
+      <thead>
+
+        <tr>
+
+          <th>
+            #
+          </th>
+
+          <th>
+            Plan
+          </th>
+
+         
+          
+
+          <th>
+            Subscription End
+          </th>
+
+          <th>
+            Status
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        {payments.length === 0 ? (
+
+          <tr>
+
+            <td
+              colSpan="6"
+              style={{
+                textAlign: "center",
+                padding: "30px",
+              }}
             >
+              No payment history found.
+            </td>
 
-              <span>
-                ◈
-              </span>
+          </tr>
 
-              <div>
+        ) : (
 
-                <strong>
-                  Business Profile
-                </strong>
+          payments.map(
+            (
+              payment,
+              index
+            ) => (
 
-                <small>
-                  Update business details
-                </small>
+              <tr
+                key={
+                  payment.id ||
+                  index
+                }
+              >
 
-              </div>
+                {/* NUMBER */}
 
-            </button>
-
-
-            <button
-              onClick={() =>
-                navigate("/categories")
-              }
-            >
-
-              <span>
-                ☷
-              </span>
-
-              <div>
-
-                <strong>
-                  Manage Categories
-                </strong>
-
-                <small>
-                  Add or edit categories
-                </small>
-
-              </div>
-
-            </button>
+                <td>
+                  {index + 1}
+                </td>
 
 
-            <button
-              onClick={() =>
-                navigate("/items")
-              }
-            >
+                {/* PLAN */}
 
-              <span>
-                ▣
-              </span>
+                <td>
 
-              <div>
+                  <div className="payment-plan-cell">
 
-                <strong>
-                  Manage Items
-                </strong>
+                    
 
-                <small>
-                  Add products and services
-                </small>
+                    <div>
 
-              </div>
+                      <strong>
+                        {
+                          payment.plan_name ||
+                          "-"
+                        }
+                      </strong>
 
-            </button>
+                    </div>
 
-          </div>
+                  </div>
+
+                </td>
+
+
+                {/* SUBSCRIPTION END */}
+
+                <td>
+
+                  {formatDate(
+                    payment.end_date
+                  )}
+
+                </td>
+
+
+                {/* STATUS */}
+
+                <td>
+
+                  <span
+                    className={`payment-status ${
+                      payment.status
+                        ? payment.status.toLowerCase()
+                        : "paid"
+                    }`}
+                  >
+
+                    {
+                      payment.status ||
+                      "Paid"
+                    }
+
+                  </span>
+
+                </td>
+
+              </tr>
+
+            )
+          )
+
+        )}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
 
         </div>
-
-         </div>
-
 
       </main>
 

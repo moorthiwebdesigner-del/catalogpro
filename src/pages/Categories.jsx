@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../App.css";
 import AdminSidebar from "../components/AdminSidebar";
 
-const API = "https://code6technologies.com/catalogproapi";
+const API =
+  "https://code6technologies.com/catalogproapi";
 
 function Categories() {
   const navigate = useNavigate();
@@ -15,6 +16,14 @@ function Categories() {
 
   const [editingId, setEditingId] = useState(null);
 
+  const [subscription, setSubscription] = useState({
+    plan_name: "",
+    category_limit: 0,
+    total_categories: 0,
+    remaining_categories: null,
+    end_date: "",
+  });
+
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -24,9 +33,133 @@ function Categories() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  /*
+  |--------------------------------------------------------------------------
+  | CATEGORY POPUP
+  |--------------------------------------------------------------------------
+  */
+
+  const [showUpgradePopup, setShowUpgradePopup] =
+    useState(false);
+
+  const [upgradeTitle, setUpgradeTitle] =
+    useState("");
+
+  const [upgradeMessage, setUpgradeMessage] =
+    useState("");
+
+  const [upgradeInfo, setUpgradeInfo] =
+    useState(null);
+
+  /*
+  |--------------------------------------------------------------------------
+  | GET TOKEN
+  |--------------------------------------------------------------------------
+  */
+
   const getToken = () => {
     return localStorage.getItem("catalogpro_token");
   };
+
+  /*
+  |--------------------------------------------------------------------------
+  | SHOW CATEGORY POPUP
+  |--------------------------------------------------------------------------
+  */
+
+  const showCategoryPopup = (result) => {
+    const code = result?.code;
+
+    let title = "";
+    let popupMessage = "";
+    let info = null;
+
+    /*
+     * 1. CATEGORY LIMIT REACHED
+     */
+
+    if (code === "CATEGORY_LIMIT_REACHED") {
+      title = "Category Limit Reached";
+
+      popupMessage =
+        "You have reached your category limit. Please upgrade your plan to add more categories.";
+
+      info = {
+        plan_name:
+          result?.data?.plan_name || "",
+
+        current_categories:
+          result?.data?.current_categories ?? 0,
+
+        category_limit:
+          result?.data?.category_limit ?? 0,
+
+        remaining_categories: 0,
+      };
+    }
+
+    /*
+     * 2. SUBSCRIPTION EXPIRED
+     */
+
+    else if (
+      code === "SUBSCRIPTION_EXPIRED"
+    ) {
+      title = "Subscription Expired";
+
+      popupMessage =
+        "Your subscription has expired. Please choose a plan to continue adding categories.";
+
+      info = {
+        plan_name:
+          result?.data?.plan_name || "",
+
+        end_date:
+          result?.data?.end_date || "",
+      };
+    }
+
+    /*
+     * 3. SUBSCRIPTION REQUIRED
+     */
+
+    else if (
+      code === "SUBSCRIPTION_REQUIRED"
+    ) {
+      title = "Subscription Required";
+
+      popupMessage =
+        "Your account does not have an active subscription. Please choose a plan to continue adding categories.";
+
+      info = null;
+    }
+
+    /*
+     * Unknown subscription error
+     */
+
+    else {
+      title = "Subscription Required";
+
+      popupMessage =
+        result?.message ||
+        "Please choose a plan to continue.";
+
+      info = null;
+    }
+
+    setUpgradeTitle(title);
+    setUpgradeMessage(popupMessage);
+    setUpgradeInfo(info);
+
+    setShowUpgradePopup(true);
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD CATEGORIES
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
     loadCategories();
@@ -48,6 +181,7 @@ function Categories() {
         `${API}/categories/list.php`,
         {
           method: "GET",
+
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -56,27 +190,98 @@ function Categories() {
 
       const result = await response.json();
 
-      console.log("Categories:", result);
+      console.log(
+        "Categories:",
+        result
+      );
 
       if (!result.success) {
         setError(
           result.message ||
             "Failed to load categories"
         );
+
         return;
       }
 
-      setCategories(
-        result.data.categories || []
-      );
+      /*
+       * Categories
+       */
 
+      const categoryData =
+        Array.isArray(result.data)
+          ? result.data
+          : Array.isArray(
+              result.data?.categories
+            )
+          ? result.data.categories
+          : [];
+
+      setCategories(categoryData);
+
+      /*
+       * Subscription information
+       */
+
+      const subscriptionData =
+        result.subscription ||
+        result.data?.subscription ||
+        null;
+
+      if (subscriptionData) {
+        setSubscription({
+          plan_name:
+            subscriptionData.plan_name ||
+            "",
+
+          category_limit:
+            Number(
+              subscriptionData.category_limit ||
+                0
+            ),
+
+          total_categories:
+            Number(
+              subscriptionData.total_categories ||
+                categoryData.length
+            ),
+
+          remaining_categories:
+            subscriptionData.remaining_categories ??
+            null,
+
+          end_date:
+            subscriptionData.end_date ||
+            "",
+        });
+      } else {
+        /*
+         * Fallback
+         */
+
+        setSubscription((prev) => ({
+          ...prev,
+
+          total_categories:
+            categoryData.length,
+        }));
+      }
     } catch (err) {
       console.error(err);
-      setError("Unable to connect to server.");
+
+      setError(
+        "Unable to connect to server."
+      );
     } finally {
       setLoading(false);
     }
   };
+
+  /*
+  |--------------------------------------------------------------------------
+  | GENERATE SLUG
+  |--------------------------------------------------------------------------
+  */
 
   const generateSlug = (value) => {
     return value
@@ -86,26 +291,50 @@ function Categories() {
       .replace(/^-+|-+$/g, "");
   };
 
+  /*
+  |--------------------------------------------------------------------------
+  | CATEGORY NAME CHANGE
+  |--------------------------------------------------------------------------
+  */
+
   const handleNameChange = (e) => {
     const name = e.target.value;
 
     setForm((prev) => ({
       ...prev,
+
       name,
+
       slug: editingId
         ? prev.slug
         : generateSlug(name),
     }));
   };
 
+  /*
+  |--------------------------------------------------------------------------
+  | FORM CHANGE
+  |--------------------------------------------------------------------------
+  */
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value,
+    } = e.target;
 
     setForm((prev) => ({
       ...prev,
+
       [name]: value,
     }));
   };
+
+  /*
+  |--------------------------------------------------------------------------
+  | RESET FORM
+  |--------------------------------------------------------------------------
+  */
 
   const resetForm = () => {
     setForm({
@@ -118,30 +347,115 @@ function Categories() {
     setShowForm(false);
   };
 
+  /*
+  |--------------------------------------------------------------------------
+  | CATEGORY LIMIT CHECK
+  |--------------------------------------------------------------------------
+  */
+
+  const categoryLimitReached = () => {
+    const limit = Number(
+      subscription.category_limit || 0
+    );
+
+    const currentCount =
+      categories.length;
+
+    /*
+     * category_limit = 0
+     * means unlimited
+     */
+
+    if (limit <= 0) {
+      return false;
+    }
+
+    return currentCount >= limit;
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | ADD CATEGORY
+  |--------------------------------------------------------------------------
+  */
+
   const openAddForm = () => {
     setMessage("");
     setError("");
+
+    /*
+     * Frontend category limit check
+     */
+
+    if (categoryLimitReached()) {
+      setShowUpgradePopup(false);
+
+      /*
+       * Show limit popup directly
+       */
+
+      setUpgradeTitle(
+        "Category Limit Reached"
+      );
+
+      setUpgradeMessage(
+        "You have reached your category limit. Please upgrade your plan to add more categories."
+      );
+
+      setUpgradeInfo({
+        plan_name:
+          subscription.plan_name,
+
+        current_categories:
+          categories.length,
+
+        category_limit:
+          subscription.category_limit,
+
+        remaining_categories: 0,
+      });
+
+      setShowUpgradePopup(true);
+
+      return;
+    }
 
     setEditingId(null);
 
     setForm({
       name: "",
       slug: "",
-      sort_order: categories.length,
+      sort_order:
+        categories.length,
     });
 
     setShowForm(true);
   };
 
+  /*
+  |--------------------------------------------------------------------------
+  | EDIT CATEGORY
+  |--------------------------------------------------------------------------
+  */
+
   const openEditForm = (category) => {
     setMessage("");
     setError("");
+
+    /*
+     * IMPORTANT:
+     * Editing is always allowed.
+     * Category limit only applies
+     * while creating.
+     */
 
     setEditingId(category.id);
 
     setForm({
       name: category.name || "",
+
       slug: category.slug || "",
+
       sort_order:
         category.sort_order ?? 0,
     });
@@ -149,131 +463,280 @@ function Categories() {
     setShowForm(true);
   };
 
+  /*
+  |--------------------------------------------------------------------------
+  | SAVE CATEGORY
+  |--------------------------------------------------------------------------
+  */
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const token = getToken();
+    const token = getToken();
 
-  if (!token) {
-    navigate("/login");
-    return;
-  }
-
-  try {
-    setMessage("");
-    setError("");
-
-    const isEditing = Boolean(editingId);
-
-    const endpoint = isEditing
-      ? `${API}/categories/update.php`
-      : `${API}/categories/create.php`;
-
-    const body = isEditing
-      ? {
-          id: editingId,
-          name: form.name,
-          slug: form.slug,
-          sort_order: Number(form.sort_order) || 0,
-        }
-      : {
-          name: form.name,
-          slug: form.slug,
-          sort_order: Number(form.sort_order) || 0,
-        };
-
-    const response = await fetch(endpoint, {
-      method: isEditing ? "PUT" : "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const result = await response.json();
-
-    console.log("Category save:", result);
-
-    if (!result.success) {
-      setError(
-        result.message || "Category save failed"
-      );
+    if (!token) {
+      navigate("/login");
       return;
     }
 
-    setMessage(
-      isEditing
-        ? "Category updated successfully."
-        : "Category created successfully."
-    );
+    /*
+     * Extra frontend protection
+     *
+     * Only check limit while creating.
+     */
 
-    resetForm();
+    if (
+      !editingId &&
+      categoryLimitReached()
+    ) {
+      setShowForm(false);
 
-    await loadCategories();
+      setUpgradeTitle(
+        "Category Limit Reached"
+      );
 
-  } catch (err) {
-    console.error(err);
-    setError("Unable to connect to server.");
-  }
-};
+      setUpgradeMessage(
+        "You have reached your category limit. Please upgrade your plan to add more categories."
+      );
+
+      setUpgradeInfo({
+        plan_name:
+          subscription.plan_name,
+
+        current_categories:
+          categories.length,
+
+        category_limit:
+          subscription.category_limit,
+
+        remaining_categories: 0,
+      });
+
+      setShowUpgradePopup(true);
+
+      return;
+    }
+
+    try {
+      setMessage("");
+      setError("");
+
+      const isEditing =
+        Boolean(editingId);
+
+      const endpoint = isEditing
+        ? `${API}/categories/update.php`
+        : `${API}/categories/create.php`;
+
+      const body = isEditing
+        ? {
+            id: editingId,
+
+            name: form.name,
+
+            slug: form.slug,
+
+            sort_order:
+              Number(
+                form.sort_order
+              ) || 0,
+          }
+        : {
+            name: form.name,
+
+            slug: form.slug,
+
+            sort_order:
+              Number(
+                form.sort_order
+              ) || 0,
+          };
+
+      const response = await fetch(
+        endpoint,
+        {
+          method: isEditing
+            ? "PUT"
+            : "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(
+            body
+          ),
+        }
+      );
+
+      const result =
+        await response.json();
+
+      console.log(
+        "Category save:",
+        result
+      );
+
+      /*
+       * SUBSCRIPTION ERRORS
+       *
+       * These are the 3 popup types.
+       */
+
+      if (
+        result.code ===
+          "CATEGORY_LIMIT_REACHED" ||
+        result.code ===
+          "SUBSCRIPTION_EXPIRED" ||
+        result.code ===
+          "SUBSCRIPTION_REQUIRED"
+      ) {
+        setShowForm(false);
+
+        showCategoryPopup(result);
+
+        return;
+      }
+
+      /*
+       * Normal API error
+       */
+
+      if (!result.success) {
+        setError(
+          result.message ||
+            "Category save failed"
+        );
+
+        return;
+      }
+
+      /*
+       * Success
+       */
+
+      setMessage(
+        isEditing
+          ? "Category updated successfully."
+          : "Category created successfully."
+      );
+
+      resetForm();
+
+      await loadCategories();
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        "Unable to connect to server."
+      );
+    }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | DELETE CATEGORY
+  |--------------------------------------------------------------------------
+  */
 
   const handleDelete = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this category?"
-  );
-
-  if (!confirmDelete) {
-    return;
-  }
-
-  const token = getToken();
-
-  if (!token) {
-    navigate("/login");
-    return;
-  }
-
-  try {
-    setMessage("");
-    setError("");
-
-    const response = await fetch(
-      `${API}/categories/delete.php`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: id,
-        }),
-      }
-    );
-
-    const result = await response.json();
-
-    console.log("Delete category:", result);
-
-    if (!result.success) {
-      setError(
-        result.message || "Delete failed"
+    const confirmDelete =
+      window.confirm(
+        "Are you sure you want to delete this category?"
       );
+
+    if (!confirmDelete) {
       return;
     }
 
-    setMessage(
-      "Category deleted successfully."
-    );
+    const token = getToken();
 
-    await loadCategories();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-  } catch (err) {
-    console.error(err);
-    setError("Unable to connect to server.");
-  }
-};
+    try {
+      setMessage("");
+      setError("");
+
+      const response =
+        await fetch(
+          `${API}/categories/delete.php`,
+          {
+            method: "DELETE",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              id: id,
+            }),
+          }
+        );
+
+      const result =
+        await response.json();
+
+      console.log(
+        "Delete category:",
+        result
+      );
+
+      /*
+       * If delete API also returns
+       * subscription errors,
+       * show the same popup.
+       */
+
+      if (
+        result.code ===
+          "SUBSCRIPTION_EXPIRED" ||
+        result.code ===
+          "SUBSCRIPTION_REQUIRED"
+      ) {
+        showCategoryPopup(result);
+
+        return;
+      }
+
+      if (!result.success) {
+        setError(
+          result.message ||
+            "Delete failed"
+        );
+
+        return;
+      }
+
+      setMessage(
+        "Category deleted successfully."
+      );
+
+      await loadCategories();
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        "Unable to connect to server."
+      );
+    }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOADING
+  |--------------------------------------------------------------------------
+  */
 
   if (loading) {
     return (
@@ -283,36 +746,51 @@ function Categories() {
     );
   }
 
+  /*
+  |--------------------------------------------------------------------------
+  | MAIN
+  |--------------------------------------------------------------------------
+  */
+
   return (
     <div className="admin-layout">
 
       {/* SIDEBAR */}
 
-<AdminSidebar />
+      <AdminSidebar />
 
       {/* MAIN */}
 
       <main className="admin-main">
 
+        {/* TOPBAR */}
+
         <header className="admin-topbar">
 
           <div>
-            <h1>Categories</h1>
+            <h1>
+              Categories
+            </h1>
 
             <p>
-              Manage your catalogue categories
+              Manage your catalogue
+              categories
             </p>
           </div>
 
           <button
+            type="button"
             className="category-add-button"
-            onClick={openAddForm}
+            onClick={
+              openAddForm
+            }
           >
             + Add Category
           </button>
 
         </header>
 
+        {/* SUCCESS */}
 
         {message && (
           <div className="profile-success">
@@ -320,12 +798,66 @@ function Categories() {
           </div>
         )}
 
+        {/* ERROR */}
+
         {error && (
           <div className="profile-error">
             {error}
           </div>
         )}
 
+        {/* PLAN INFO */}
+
+        {subscription.plan_name && (
+          <div className="category-plan-info">
+
+            <div>
+              <span>
+                Current Plan
+              </span>
+
+              <strong>
+                {
+                  subscription.plan_name
+                }
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Categories
+              </span>
+
+              <strong>
+                {
+                  categories.length
+                }
+
+                {" / "}
+
+                {subscription.category_limit >
+                0
+                  ? subscription.category_limit
+                  : "Unlimited"}
+              </strong>
+            </div>
+
+            {subscription.end_date && (
+              <div>
+                <span>
+                  Valid Until
+                </span>
+
+                <strong>
+                  {
+                    subscription.end_date
+                  }
+                </strong>
+              </div>
+            )}
+
+          </div>
+        )}
 
         {/* FORM */}
 
@@ -342,24 +874,32 @@ function Categories() {
                 </h2>
 
                 <p>
-                  Create a category for your
-                  catalogue.
+                  Create a category
+                  for your catalogue.
                 </p>
               </div>
 
               <button
+                type="button"
                 className="category-close-button"
-                onClick={resetForm}
+                onClick={
+                  resetForm
+                }
               >
                 ×
               </button>
 
             </div>
 
-
-            <form onSubmit={handleSubmit}>
+            <form
+              onSubmit={
+                handleSubmit
+              }
+            >
 
               <div className="category-form-grid">
+
+                {/* NAME */}
 
                 <div className="category-field">
 
@@ -369,7 +909,9 @@ function Categories() {
 
                   <input
                     type="text"
-                    value={form.name}
+                    value={
+                      form.name
+                    }
                     onChange={
                       handleNameChange
                     }
@@ -379,6 +921,7 @@ function Categories() {
 
                 </div>
 
+                {/* SLUG */}
 
                 <div className="category-field">
 
@@ -389,7 +932,9 @@ function Categories() {
                   <input
                     type="text"
                     name="slug"
-                    value={form.slug}
+                    value={
+                      form.slug
+                    }
                     onChange={
                       handleChange
                     }
@@ -399,6 +944,7 @@ function Categories() {
 
                 </div>
 
+                {/* SORT */}
 
                 <div className="category-field">
 
@@ -409,7 +955,9 @@ function Categories() {
                   <input
                     type="number"
                     name="sort_order"
-                    value={form.sort_order}
+                    value={
+                      form.sort_order
+                    }
                     onChange={
                       handleChange
                     }
@@ -420,13 +968,16 @@ function Categories() {
 
               </div>
 
+              {/* ACTIONS */}
 
               <div className="category-form-actions">
 
                 <button
                   type="button"
                   className="category-cancel-button"
-                  onClick={resetForm}
+                  onClick={
+                    resetForm
+                  }
                 >
                   Cancel
                 </button>
@@ -448,143 +999,320 @@ function Categories() {
         )}
 
 
-        {/* TABLE */}
+<section className="item-table-card">
+        {/* CATEGORY HEADER */}
 
-<section className="category-table-card">
+        <div className="category-table-header">
 
-  {/* HEADER */}
+          <div>
+            <h2>
+              All Categories
+            </h2>
 
-  <div className="category-table-header">
+            <span>
+              {
+                categories.length
+              }{" "}
 
-    <div>
+              {categories.length ===
+              1
+                ? "category"
+                : "categories"}
+            </span>
+          </div>
 
-      <h2>
-        All Categories
-      </h2>
+        </div>
 
-      <span>
-        {categories.length}{" "}
-        {categories.length === 1
-          ? "category"
-          : "categories"}
-      </span>
+        {/* EMPTY */}
 
-    </div>
+        {categories.length ===
+        0 ? (
 
-  </div>
+          <div className="category-empty">
 
+            <div className="category-empty-icon">
+              ☷
+            </div>
 
-  {/* EMPTY */}
+            <h3>
+              No categories yet
+            </h3>
 
-  {categories.length === 0 ? (
+            <p>
+              Create your first
+              category to organize
+              your catalogue.
+            </p>
 
-    <div className="category-empty">
+            <button
+              type="button"
+              className="category-add-button"
+              onClick={
+                openAddForm
+              }
+            >
+              + Add Category
+            </button>
 
-      <div className="category-empty-icon">
-        ☷
-      </div>
+          </div>
 
-      <h3>
-        No categories yet
-      </h3>
+        ) : (
 
-      <p>
-        Create your first category
-        to organize your catalogue.
-      </p>
+          <>
 
-      <button
-        className="category-add-button"
-        onClick={openAddForm}
-      >
-        + Add Category
-      </button>
+            {/* DESKTOP TABLE */}
 
-    </div>
+            <div className="category-table-wrapper">
 
-  ) : (
+              <table className="category-table">
 
-    <>
+                <thead>
 
-      {/* DESKTOP TABLE */}
+                  <tr>
+                    <th>#</th>
+                    <th>
+                      Category
+                    </th>
+                    <th>
+                      Slug
+                    </th>
+                    <th>
+                      Sort Order
+                    </th>
+                    <th>
+                      Status
+                    </th>
+                    <th>
+                      Actions
+                    </th>
+                  </tr>
 
-      <div className="category-table-wrapper">
+                </thead>
 
-        <table className="category-table">
+                <tbody>
 
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Category</th>
-              <th>Slug</th>
-              <th>Sort Order</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+                  {categories.map(
+                    (
+                      category,
+                      index
+                    ) => (
 
-          <tbody>
+                      <tr
+                        key={
+                          category.id
+                        }
+                      >
 
-            {categories.map(
-              (category, index) => (
+                        <td>
+                          {
+                            index +
+                            1
+                          }
+                        </td>
 
-                <tr key={category.id}>
+                        <td>
 
-                  <td>
-                    {index + 1}
-                  </td>
+                          <div className="category-name-cell">
 
-                  <td>
+                            <div className="category-icon">
+                              {category.name
+                                ?.charAt(
+                                  0
+                                )
+                                .toUpperCase()}
+                            </div>
 
-                    <div className="category-name-cell">
+                            <strong>
+                              {
+                                category.name
+                              }
+                            </strong>
 
-                      <div className="category-icon">
-                        {category.name
-                          ?.charAt(0)
-                          .toUpperCase()}
+                          </div>
+
+                        </td>
+
+                        <td>
+
+                          <span className="category-slug">
+                            {
+                              category.slug
+                            }
+                          </span>
+
+                        </td>
+
+                        <td>
+                          {
+                            category.sort_order
+                          }
+                        </td>
+
+                        <td>
+
+                          <span className="category-status">
+                            Active
+                          </span>
+
+                        </td>
+
+                        <td>
+
+                          <div className="category-actions">
+
+                            <button
+                              type="button"
+                              className="category-edit-button"
+                              onClick={() =>
+                                openEditForm(
+                                  category
+                                )
+                              }
+                            >
+                              Edit
+                            </button>
+
+                            <button
+                              type="button"
+                              className="category-delete-button"
+                              onClick={() =>
+                                handleDelete(
+                                  category.id
+                                )
+                              }
+                            >
+                              Delete
+                            </button>
+
+                          </div>
+
+                        </td>
+
+                      </tr>
+
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+            {/* MOBILE */}
+
+            <div className="category-mobile-list">
+
+              {categories.map(
+                (
+                  category,
+                  index
+                ) => (
+
+                  <div
+                    className="category-mobile-card"
+                    key={
+                      category.id
+                    }
+                  >
+
+                    {/* TOP */}
+
+                    <div className="category-mobile-top">
+
+                      <div className="category-mobile-info">
+
+                        <div className="category-mobile-icon">
+                          {category.name
+                            ?.charAt(
+                              0
+                            )
+                            .toUpperCase()}
+                        </div>
+
+                        <div>
+
+                          <strong>
+                            {
+                              category.name
+                            }
+                          </strong>
+
+                          <span>
+                            /
+                            {
+                              category.slug
+                            }
+                          </span>
+
+                        </div>
+
                       </div>
 
-                      <strong>
-                        {category.name}
-                      </strong>
+                      <span className="category-mobile-status">
+                        Active
+                      </span>
 
                     </div>
 
-                  </td>
+                    {/* DETAILS */}
 
-                  <td>
-                    <span className="category-slug">
-                      {category.slug}
-                    </span>
-                  </td>
+                    <div className="category-mobile-details">
 
-                  <td>
-                    {category.sort_order}
-                  </td>
+                      <div>
 
-                  <td>
-                    <span className="category-status">
-                      Active
-                    </span>
-                  </td>
+                        <small>
+                          #
+                        </small>
 
-                  <td>
+                        <strong>
+                          {
+                            index +
+                            1
+                          }
+                        </strong>
 
-                    <div className="category-actions">
+                      </div>
+
+                      <div>
+
+                        <small>
+                          Sort Order
+                        </small>
+
+                        <strong>
+                          {
+                            category.sort_order
+                          }
+                        </strong>
+
+                      </div>
+
+                    </div>
+
+                    {/* ACTIONS */}
+
+                    <div className="category-mobile-actions">
 
                       <button
+                        type="button"
                         className="category-edit-button"
                         onClick={() =>
-                          openEditForm(category)
+                          openEditForm(
+                            category
+                          )
                         }
                       >
                         Edit
                       </button>
 
                       <button
+                        type="button"
                         className="category-delete-button"
                         onClick={() =>
-                          handleDelete(category.id)
+                          handleDelete(
+                            category.id
+                          )
                         }
                       >
                         Delete
@@ -592,137 +1320,235 @@ function Categories() {
 
                     </div>
 
-                  </td>
-
-                </tr>
-
-              )
-            )}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-
-      {/* MOBILE CARDS */}
-
-      <div className="category-mobile-list">
-
-        {categories.map(
-          (category, index) => (
-
-            <div
-              className="category-mobile-card"
-              key={category.id}
-            >
-
-              {/* CARD TOP */}
-
-              <div className="category-mobile-top">
-
-                <div className="category-mobile-info">
-
-                  <div className="category-mobile-icon">
-                    {category.name
-                      ?.charAt(0)
-                      .toUpperCase()}
                   </div>
 
-                  <div>
-
-                    <strong>
-                      {category.name}
-                    </strong>
-
-                    <span>
-                      /{category.slug}
-                    </span>
-
-                  </div>
-
-                </div>
-
-
-                <span className="category-mobile-status">
-                  Active
-                </span>
-
-              </div>
-
-
-              {/* DETAILS */}
-
-              <div className="category-mobile-details">
-
-                <div>
-
-                  <small>
-                    #
-                  </small>
-
-                  <strong>
-                    {index + 1}
-                  </strong>
-
-                </div>
-
-
-                <div>
-
-                  <small>
-                    Sort Order
-                  </small>
-
-                  <strong>
-                    {category.sort_order}
-                  </strong>
-
-                </div>
-
-              </div>
-
-
-              {/* ACTIONS */}
-
-              <div className="category-mobile-actions">
-
-                <button
-                  type="button"
-                  className="category-edit-button"
-                  onClick={() =>
-                    openEditForm(category)
-                  }
-                >
-                  Edit
-                </button>
-
-                <button
-                  type="button"
-                  className="category-delete-button"
-                  onClick={() =>
-                    handleDelete(category.id)
-                  }
-                >
-                  Delete
-                </button>
-
-              </div>
+                )
+              )}
 
             </div>
 
-          )
+          </>
+
         )}
 
-      </div>
+      </section>
 
-    </>
-
-  )}
-
-</section>
       </main>
+
+      {/* =====================================================
+          CATEGORY SUBSCRIPTION POPUP
+          3 TYPES:
+          1. CATEGORY LIMIT REACHED
+          2. SUBSCRIPTION EXPIRED
+          3. SUBSCRIPTION REQUIRED
+          ===================================================== */}
+
+      {showUpgradePopup && (
+
+        <div
+          className="upgrade-popup-overlay"
+          onClick={() =>
+            setShowUpgradePopup(
+              false
+            )
+          }
+        >
+
+          <div
+            className="upgrade-popup"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+
+            {/* CLOSE */}
+
+            <button
+              type="button"
+              className="upgrade-popup-close"
+              onClick={() =>
+                setShowUpgradePopup(
+                  false
+                )
+              }
+            >
+              ×
+            </button>
+
+            {/* ICON */}
+
+            <div className="upgrade-popup-icon">
+              ⚡
+            </div>
+
+            {/* TITLE */}
+
+            <h2>
+              {upgradeTitle}
+            </h2>
+
+            {/* MESSAGE */}
+
+            <p>
+              {upgradeMessage}
+            </p>
+
+            {/* LIMIT INFO */}
+
+            {upgradeInfo &&
+              upgradeTitle ===
+                "Category Limit Reached" && (
+
+                <div className="upgrade-popup-info">
+
+                  {upgradeInfo.plan_name && (
+                    <div>
+
+                      <span>
+                        Current Plan
+                      </span>
+
+                      <strong>
+                        {
+                          upgradeInfo.plan_name
+                        }
+                      </strong>
+
+                    </div>
+                  )}
+
+                  <div>
+
+                    <span>
+                      Categories Used
+                    </span>
+
+                    <strong>
+                      {
+                        upgradeInfo.current_categories
+                      }
+
+                      {" / "}
+
+                      {
+                        upgradeInfo.category_limit
+                      }
+                    </strong>
+
+                  </div>
+
+                </div>
+
+              )}
+
+            {/* EXPIRED INFO */}
+
+            {upgradeInfo &&
+              upgradeTitle ===
+                "Subscription Expired" && (
+
+                <div className="upgrade-popup-info">
+
+                  {upgradeInfo.plan_name && (
+                    <div>
+
+                      <span>
+                        Previous Plan
+                      </span>
+
+                      <strong>
+                        {
+                          upgradeInfo.plan_name
+                        }
+                      </strong>
+
+                    </div>
+                  )}
+
+                  {upgradeInfo.end_date && (
+                    <div>
+
+                      <span>
+                        Expired On
+                      </span>
+
+                      <strong>
+                        {
+                          upgradeInfo.end_date
+                        }
+                      </strong>
+
+                    </div>
+                  )}
+
+                </div>
+
+              )}
+
+            {/* REQUIRED */}
+
+            {upgradeTitle ===
+              "Subscription Required" && (
+
+              <div className="upgrade-popup-info">
+
+                <div>
+
+                  <span>
+                    Account Status
+                  </span>
+
+                  <strong>
+                    No Active Plan
+                  </strong>
+
+                </div>
+
+              </div>
+
+            )}
+
+            {/* ACTIONS */}
+
+            <div className="upgrade-popup-actions">
+
+              <button
+                type="button"
+                className="upgrade-popup-cancel"
+                onClick={() =>
+                  setShowUpgradePopup(
+                    false
+                  )
+                }
+              >
+                Maybe Later
+              </button>
+
+              <button
+                type="button"
+                className="upgrade-popup-button"
+                onClick={() => {
+
+                  setShowUpgradePopup(
+                    false
+                  );
+
+                  navigate(
+                    "/plans"
+                  );
+
+                }}
+              >
+                Choose Plan
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </div>
   );

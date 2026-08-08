@@ -33,6 +33,14 @@ function Items() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+ const [showUpgradePopup, setShowUpgradePopup] = useState(false);
+const [upgradeInfo, setUpgradeInfo] = useState(null);
+const [upgradeTitle, setUpgradeTitle] =
+  useState("Upgrade Your Plan");
+const [upgradeMessage, setUpgradeMessage] =
+  useState("");
+
+
   const [selectedImage, setSelectedImage] = useState(null);
 const [imagePreview, setImagePreview] = useState("");
 const [uploadingImage, setUploadingImage] = useState(false);
@@ -40,6 +48,29 @@ const [uploadingImage, setUploadingImage] = useState(false);
   const getToken = () => {
     return localStorage.getItem("catalogpro_token");
   };
+
+  const getImageUrl = (item) => {
+  if (!item) {
+    return "";
+  }
+
+  if (item.image_url) {
+    return item.image_url;
+  }
+
+  if (item.image) {
+    if (
+      item.image.startsWith("http://") ||
+      item.image.startsWith("https://")
+    ) {
+      return item.image;
+    }
+
+    return `${API}/${item.image.replace(/^\/+/, "")}`;
+  }
+
+  return "";
+};
 
   useEffect(() => {
     loadData();
@@ -106,9 +137,11 @@ const [uploadingImage, setUploadingImage] = useState(false);
         itemsResult.data.items || []
       );
 
-      setCategories(
-        categoriesResult.data.categories || []
-      );
+     setCategories(
+  Array.isArray(categoriesResult.data)
+    ? categoriesResult.data
+    : categoriesResult.data?.categories || []
+);
 
     } catch (err) {
       console.error(err);
@@ -322,15 +355,56 @@ const openEditForm = (item) => {
         result
       );
 
-      if (!result.success) {
-        setError(
-          result.message ||
-            "Item save failed"
-        );
-        return;
-      }
+if (!result.success) {
+  const apiMessage =
+    result.message || "Unable to create item.";
+
+  // EXPIRED / NO ACTIVE SUBSCRIPTION
+  if (
+    apiMessage.toLowerCase().includes("expired") ||
+    apiMessage
+      .toLowerCase()
+      .includes("no active subscription")
+  ) {
+    setUpgradeTitle("Subscription Required");
+
+    setUpgradeMessage(
+      "Your account does not have an active subscription. Please choose a plan to continue adding items."
+    );
+
+    setUpgradeInfo(result.data || null);
+
+    setShowUpgradePopup(true);
+
+    return;
+  }
+
+  // ITEM LIMIT
+  if (
+    apiMessage
+      .toLowerCase()
+      .includes("item limit")
+  ) {
+    setUpgradeTitle("Item Limit Reached");
+
+    setUpgradeMessage(
+      "Your current plan has reached its item limit. Upgrade your plan to add more items."
+    );
+
+    setUpgradeInfo(result.data || null);
+
+    setShowUpgradePopup(true);
+
+    return;
+  }
+
+  setError(apiMessage);
+
+  return;
+}
+
 const savedItemId =
-  result.data?.id || editingId;
+    result.data?.item?.id || editingId;
 
 console.log(
   "========== IMAGE DEBUG =========="
@@ -1080,21 +1154,18 @@ const uploadItemImage = async (itemId) => {
 
                       <div className="category-icon">
 
-                        {item.image ? (
-
-                          <img
-                            src={`https://code6technologies.com/catalogproapi/${item.image}`}
-                            alt={item.name}
-                            className="item-list-image"
-                          />
-
-                        ) : (
-
-                          item.name
-                            ?.charAt(0)
-                            .toUpperCase()
-
-                        )}
+                        {getImageUrl(item) ? (
+  <img
+    src={getImageUrl(item)}
+    alt={item.name}
+    className="item-list-image"
+    onError={(e) => {
+      e.currentTarget.style.display = "none";
+    }}
+  />
+) : (
+  item.name?.charAt(0).toUpperCase()
+)}
 
                       </div>
 
@@ -1408,6 +1479,97 @@ const uploadItemImage = async (itemId) => {
   )}
 
 </section>
+
+
+{showUpgradePopup && (
+  <div className="upgrade-popup-overlay">
+
+    <div className="upgrade-popup">
+
+      <button
+        type="button"
+        className="upgrade-popup-close"
+        onClick={() =>
+          setShowUpgradePopup(false)
+        }
+      >
+        ×
+      </button>
+
+      <div className="upgrade-popup-icon">
+        ⚡
+      </div>
+
+      <h2>
+        {upgradeTitle}
+      </h2>
+
+      <p>
+        {upgradeMessage}
+      </p>
+
+      {upgradeInfo && (
+        <div className="upgrade-popup-info">
+
+          {upgradeInfo.plan_name && (
+            <div>
+              <span>
+                Current Plan
+              </span>
+
+              <strong>
+                {upgradeInfo.plan_name}
+              </strong>
+            </div>
+          )}
+
+          {upgradeInfo.current_items !== undefined && (
+            <div>
+              <span>
+                Items Used
+              </span>
+
+              <strong>
+                {upgradeInfo.current_items}
+                {upgradeInfo.item_limit
+                  ? ` / ${upgradeInfo.item_limit}`
+                  : ""}
+              </strong>
+            </div>
+          )}
+
+        </div>
+      )}
+
+      <div className="upgrade-popup-actions">
+
+        <button
+          type="button"
+          className="upgrade-popup-cancel"
+          onClick={() =>
+            setShowUpgradePopup(false)
+          }
+        >
+          Maybe Later
+        </button>
+
+        <button
+          type="button"
+          className="upgrade-popup-button"
+          onClick={() => {
+            setShowUpgradePopup(false);
+            navigate("/plans");
+          }}
+        >
+          Choose Plan
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
       </main>
 
     </div>

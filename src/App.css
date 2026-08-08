@@ -1626,9 +1626,11 @@ footer p {
 }
 
 .business-dashboard-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+     width: 110px;
+    height: 110px;
+    object-fit: contain;
+    margin: 0;
+    padding: 5px;
 }
 
 .dashboard-label {
@@ -1656,8 +1658,8 @@ footer p {
   border: 1px solid #7263ff;
   border-radius: 8px;
 
-  background: transparent;
-  color: #7263ff;
+  background: #7263ff;
+  color: #fff;
 
   cursor: pointer;
 
@@ -1666,8 +1668,8 @@ footer p {
 }
 
 .dashboard-view-button:hover {
-  background: #7263ff;
-  color: #fff;
+  background: #fff;
+  color: #000;
 }
 
 
@@ -2012,7 +2014,7 @@ footer p {
 .profile-success {
   background: #edf9f0;
   border: 1px solid #bde4c5;
-  color: #217a35;
+  color: ##004217;
 }
 
 .profile-error {
@@ -2533,7 +2535,7 @@ footer p {
   align-items: center;
   justify-content: center;
   border-radius: 9px;
-  background: #111;
+  background: #f5f7fb;
   color: #656cff;
   font-weight: 700;
 }
@@ -2740,9 +2742,9 @@ footer p {
 }
 
 .item-list-image {
-  width: 42px;
-  height: 42px;
-  object-fit: cover;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
   border-radius: 10px;
   display: block;
 }
@@ -7923,4 +7925,2174 @@ footer p {
 
 .social-icons a:hover {
   transform: translateY(-3px);
+}
+
+/* =========================================================
+   REGISTER PLANS
+   ========================================================= */
+
+.register-plans {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.register-plans-header {
+  margin-bottom: 18px;
+}
+
+.register-plans-header h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.register-plans-header p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   PLANS GRID
+   ========================================================= */
+
+.plans-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   PLAN CARD
+   ========================================================= */
+
+.plan-card {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.plan-card-selected {
+  border-color: #111827;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+}
+
+
+/* =========================================================
+   FREE BADGE
+   ========================================================= */
+
+.plan-badge {
+  position: absolute;
+    top: -10px;
+    right: 62px;
+
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  background: #111827;
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   PLAN TOP
+   ========================================================= */
+
+.plan-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+
+}
+
+.plan-top > div:first-child {
+  min-width: 0;
+}
+
+.plan-top h3 {
+  margin: 0 0 6px;
+
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.plan-top p {
+  margin: 0;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   RADIO
+   ========================================================= */
+
+.plan-radio {
+  flex: 0 0 auto;
+
+  width: 22px;
+  height: 22px;
+
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+}
+
+.plan-radio.active {
+  border-color: #111827;
+}
+
+.plan-radio span {
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+
+  background: #111827;
+
+  font-size: 0;
+}
+
+
+/* =========================================================
+   PRICE
+   ========================================================= */
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+
+  margin-top: 20px;
+}
+
+.plan-price strong {
+  font-size: 27px;
+  line-height: 1;
+
+  font-weight: 800;
+
+  color: #111827;
+}
+
+.plan-price span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   DURATION
+   ========================================================= */
+
+.plan-duration {
+  margin-top: 10px;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   SELECT BUTTON
+   ========================================================= */
+
+.plan-select-button,
+.plan-selected-button {
+  width: 100%;
+
+  min-height: 42px;
+
+  margin-top: 20px;
+
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.plan-select-button {
+  background: #ffffff;
+  color: #111827;
+
+  border: 1px solid #d1d5db;
+}
+
+.plan-select-button:hover {
+  background: #f9fafb;
+}
+
+.plan-selected-button {
+  background: #111827;
+  color: #ffffff;
+
+  border: 1px solid #111827;
+}
+
+
+/* =========================================================
+   SELECTED PLAN SUMMARY
+   ========================================================= */
+
+.selected-plan-summary {
+  width: 100%;
+  box-sizing: border-box;
+
+  margin-top: 18px;
+  padding: 14px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  background: #f9fafb;
+}
+
+.selected-plan-summary span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.selected-plan-summary strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .plan-card {
+    padding: 18px;
+  }
+
+  .plan-top {
+    min-height: auto;
+  }
+
+  .plan-price strong {
+    font-size: 25px;
+  }
+
+  .selected-plan-summary {
+    flex-wrap: wrap;
+  }
+
+}
+
+/* =========================================================
+   SUBSCRIPTION CARD
+========================================================= */
+
+.dashboard-subscription-card {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 24px;
+
+  margin-bottom: 24px;
+  padding: 24px;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+
+/* =========================================================
+   SUBSCRIPTION INFO
+========================================================= */
+
+.subscription-info {
+  min-width: 0;
+}
+
+.subscription-info .dashboard-label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+
+  color: #6b7280;
+}
+
+.subscription-info h2 {
+  margin: 0 0 5px;
+
+  font-size: 22px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.subscription-info p {
+  margin: 0;
+
+  font-size: 14px;
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   SUBSCRIPTION STATUS
+========================================================= */
+
+.subscription-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  gap: 5px;
+
+  min-width: 170px;
+}
+
+.subscription-status strong {
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #111827;
+}
+
+.subscription-status small {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+.subscription-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 11px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+
+/* ACTIVE */
+
+.subscription-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+
+/* TRIAL */
+
+.subscription-badge.trial {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+
+/* EXPIRED */
+
+.subscription-badge.expired {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
+/* =========================================================
+   UPGRADE BUTTON
+========================================================= */
+
+.subscription-upgrade-button {
+  border: 0;
+  outline: none;
+
+  padding: 11px 18px;
+
+  border-radius: 9px;
+
+  background: #111827;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.subscription-upgrade-button:hover {
+  background: #1f2937;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 14px rgba(17, 24, 39, 0.18);
+}
+
+.subscription-upgrade-button:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .dashboard-subscription-card {
+    grid-template-columns: 1fr auto;
+  }
+
+  .subscription-status {
+    align-items: flex-start;
+  }
+
+  .subscription-upgrade-button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .dashboard-subscription-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    gap: 18px;
+
+    padding: 20px;
+
+    border-radius: 14px;
+  }
+
+
+  .subscription-info h2 {
+    font-size: 20px;
+  }
+
+
+  .subscription-status {
+    align-items: flex-start;
+
+    min-width: 0;
+  }
+
+
+  .subscription-upgrade-button {
+    width: 100%;
+
+    padding: 12px 16px;
+  }
+}
+
+
+/* =========================================================
+   PLANS PAGE
+========================================================= */
+
+.plans-page {
+  min-height: 100vh;
+  padding: 40px 24px;
+
+  background: #f8fafc;
+  color: #111827;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.plans-header {
+  max-width: 1180px;
+  margin: 0 auto 30px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.plans-header h1 {
+  margin: 16px 0 6px;
+
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.plans-header p {
+  margin: 0;
+
+  font-size: 15px;
+  line-height: 1.6;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.plans-back-button {
+  border: 0;
+    background: #fff;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+}
+
+.plans-back-button:hover {
+  color: #111827;
+}
+
+
+/* =========================================================
+   CURRENT SUBSCRIPTION
+========================================================= */
+
+.current-subscription {
+  max-width: 1180px;
+  margin: 0 auto 30px;
+
+  padding: 20px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.current-subscription > div:first-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.current-subscription > div:first-child span {
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  color: #6b7280;
+}
+
+.current-subscription > div:first-child strong {
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.current-subscription-status {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.current-subscription-status small {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+.subscription-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 11px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.subscription-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.subscription-badge.trial {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.subscription-badge.expired {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
+/* =========================================================
+   PLANS SECTION
+========================================================= */
+
+.plans-section {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.plans-page .plans-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 24px;
+
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   PLAN CARD
+========================================================= */
+
+.subscription-plan-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 410px;
+
+  padding: 30px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+
+  box-shadow:
+    0 5px 18px rgba(15, 23, 42, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.subscription-plan-card:hover {
+  transform: translateY(-4px);
+
+  border-color: #d1d5db;
+
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.09);
+}
+
+
+/* =========================================================
+   CURRENT PLAN
+========================================================= */
+
+.subscription-plan-current {
+  border: 2px solid #111827;
+
+  box-shadow:
+    0 10px 30px rgba(17, 24, 39, 0.10);
+}
+
+.subscription-plan-current:hover {
+  border-color: #111827;
+}
+
+
+/* =========================================================
+   PLAN BADGES
+========================================================= */
+
+.current-plan-badge,
+.free-plan-badge {
+  position: absolute;
+
+  top: 18px;
+  right: 18px;
+
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 0.06em;
+}
+
+.current-plan-badge {
+  background: #111827;
+  color: #ffffff;
+}
+
+.free-plan-badge {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+
+/* =========================================================
+   PLAN TOP
+========================================================= */
+
+.subscription-plan-top {
+  padding-right: 90px;
+
+  min-height: 105px;
+}
+
+.subscription-plan-top h2 {
+  margin: 0 0 10px;
+
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.subscription-plan-top p {
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.6;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   PRICE
+========================================================= */
+
+.subscription-plan-price {
+  display: flex;
+  align-items: baseline;
+
+  gap: 6px;
+
+  margin-top: 25px;
+  padding-top: 20px;
+
+  border-top: 1px solid #f0f0f0;
+}
+
+.subscription-plan-price strong {
+  font-size: 34px;
+  line-height: 1;
+
+  font-weight: 750;
+
+  color: #111827;
+}
+
+.subscription-plan-price span {
+  font-size: 14px;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   DURATION
+========================================================= */
+
+.subscription-plan-duration {
+  margin-top: 18px;
+
+  padding: 12px 14px;
+
+  background: #f9fafb;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #4b5563;
+}
+
+
+/* =========================================================
+   PLAN BUTTON
+========================================================= */
+
+.upgrade-plan-button,
+.current-plan-button {
+  width: 100%;
+
+  margin-top: auto;
+  padding: 13px 18px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* Upgrade */
+
+.upgrade-plan-button {
+  border: 1px solid #111827;
+
+  background: #111827;
+  color: #ffffff;
+}
+
+.upgrade-plan-button:hover {
+  background: #1f2937;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 6px 16px rgba(17, 24, 39, 0.18);
+}
+
+
+/* Current */
+
+.current-plan-button {
+  border: 1px solid #e5e7eb;
+
+  background: #f3f4f6;
+  color: #6b7280;
+
+  cursor: default;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.plans-error {
+  max-width: 1180px;
+
+  margin: 0 auto 24px;
+
+  padding: 14px 18px;
+
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.plans-loading-screen {
+  min-height: 70vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.plans-footer {
+  max-width: 1180px;
+
+  margin: 35px auto 0;
+
+    padding: 20px !important;
+
+  border-top: 1px solid #e5e7eb;
+}
+
+.plans-footer button {
+  border: 0;
+
+  background: transparent;
+
+  padding: 0;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #6b7280;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.plans-footer button:hover {
+  color: #111827;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .plans-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 680px) {
+
+  .plans-page {
+    padding: 25px 16px;
+  }
+
+
+  .plans-header {
+    margin-bottom: 22px;
+  }
+
+
+  .plans-header h1 {
+    font-size: 26px;
+  }
+
+
+  .plans-header p {
+    font-size: 14px;
+  }
+
+
+  .current-subscription {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    padding: 18px;
+  }
+
+
+  .current-subscription-status {
+    width: 100%;
+
+    justify-content: space-between;
+  }
+
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+  }
+
+
+  .subscription-plan-card {
+    min-height: 390px;
+
+    padding: 24px;
+  }
+
+
+  .subscription-plan-top {
+    padding-right: 70px;
+  }
+
+
+  .subscription-plan-top h2 {
+    font-size: 22px;
+  }
+
+
+  .subscription-plan-price strong {
+    font-size: 30px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .plans-page {
+    padding: 20px 12px;
+  }
+
+
+  .subscription-plan-card {
+    padding: 20px;
+  }
+
+
+  .current-subscription {
+    padding: 16px;
+  }
+
+
+  .current-subscription-status {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 8px;
+  }
+
+}
+
+
+/* =========================================================
+   UPGRADE PAGE
+========================================================= */
+
+.upgrade-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+.upgrade-card {
+  width: 100%;
+  max-width: 720px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 15px 45px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.upgrade-back-button {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0;
+  cursor: pointer;
+  margin-bottom: 30px;
+}
+
+.upgrade-back-button:hover {
+  color: #111827;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.upgrade-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.upgrade-header .dashboard-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #6366f1;
+  margin-bottom: 10px;
+}
+
+.upgrade-header h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.upgrade-header p {
+  margin: 10px auto 0;
+  max-width: 500px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.upgrade-page .plans-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* =========================================================
+   PLAN SUMMARY
+========================================================= */
+
+.upgrade-plan-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+  padding: 25px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.upgrade-plan-summary > div:first-child {
+  flex: 1;
+}
+
+.upgrade-plan-summary > div:first-child > span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 7px;
+}
+
+.upgrade-plan-summary h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.upgrade-plan-summary p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   PRICE
+========================================================= */
+
+.upgrade-price {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.upgrade-price strong {
+  display: block;
+  color: #111827;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.upgrade-price span {
+  display: block;
+  margin-top: 7px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+.upgrade-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.upgrade-details > div {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.upgrade-details span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.upgrade-details strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   PAYMENT BUTTON
+========================================================= */
+
+.upgrade-payment-button {
+  width: 100%;
+  min-height: 54px;
+  border: none;
+  border-radius: 12px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upgrade-payment-button:hover:not(:disabled) {
+  background: #1f2937;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.18);
+}
+
+.upgrade-payment-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.upgrade-payment-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SECURE TEXT
+========================================================= */
+
+.upgrade-secure-text {
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
+  margin: 16px 0 0;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .upgrade-page {
+    padding: 20px 12px;
+  }
+
+  .upgrade-card {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .upgrade-header {
+    margin-bottom: 24px;
+  }
+
+  .upgrade-header h1 {
+    font-size: 24px;
+  }
+
+  .upgrade-header p {
+    font-size: 14px;
+  }
+
+  .upgrade-plan-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .upgrade-price {
+    width: 100%;
+    text-align: left;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .upgrade-price strong {
+    font-size: 27px;
+  }
+
+  .upgrade-details {
+    grid-template-columns: 1fr;
+  }
+
+  .upgrade-details > div {
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .upgrade-details span {
+    margin-bottom: 0;
+  }
+
+  .upgrade-payment-button {
+    min-height: 52px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .upgrade-card {
+    padding: 18px 14px;
+  }
+
+  .upgrade-header h1 {
+    font-size: 22px;
+  }
+
+  .upgrade-plan-summary h2 {
+    font-size: 21px;
+  }
+
+  .upgrade-price strong {
+    font-size: 25px;
+  }
+}
+
+.upgrade-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+}
+
+.upgrade-popup {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+  animation: upgradePopupShow 0.2s ease;
+}
+
+@keyframes upgradePopupShow {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.upgrade-popup-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.upgrade-popup-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #fff7ed;
+  color: #ea580c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.upgrade-popup h2 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 24px;
+}
+
+.upgrade-popup > p {
+  margin: 0 auto 22px;
+  max-width: 350px;
+  color: #64748b;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.upgrade-popup-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.upgrade-popup-info div {
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.upgrade-popup-info span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.upgrade-popup-info strong {
+  display: block;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.upgrade-popup-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.upgrade-popup-cancel,
+.upgrade-popup-button {
+  flex: 1;
+  height: 46px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.upgrade-popup-cancel {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+}
+
+.upgrade-popup-button {
+  border: none;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.upgrade-popup-button:hover {
+  background: #1e293b;
+}
+
+@media (max-width: 480px) {
+  .upgrade-popup {
+    padding: 26px 20px;
+  }
+
+  .upgrade-popup-actions {
+    flex-direction: column;
+  }
+}
+
+
+
+
+/* =========================================================
+   PAYMENT HISTORY
+   ========================================================= */
+
+.payment-history-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.payment-summary-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.payment-summary-card span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.payment-summary-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   FILTER
+   ========================================================= */
+
+.payment-history-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.payment-history-search,
+.payment-history-customer-filter {
+  flex: 1;
+}
+
+.payment-history-filter label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 7px;
+}
+
+.payment-history-filter input,
+.payment-history-filter select {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  border: 1px solid #dbe1e8;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: 0.2s ease;
+}
+
+.payment-history-filter input:focus,
+.payment-history-filter select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.payment-history-refresh {
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid #dbe1e8;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+
+.payment-history-refresh:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+
+/* =========================================================
+   LIST HEADER
+   ========================================================= */
+
+.payment-history-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.payment-history-list-header h2 {
+  margin: 0 0 4px;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.payment-history-list-header span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.payment-history-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.dashboard-payment-panel  .payment-history-table {
+  min-width: auto;
+}
+
+.payment-history-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+.payment-history-table thead {
+  background: #f8fafc;
+}
+
+.payment-history-table th {
+  padding: 14px 16px;
+  text-align: left;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.payment-history-table td {
+  padding: 15px 16px;
+  color: #334155;
+  font-size: 14px;
+  border-bottom: 1px solid #eef2f7;
+  vertical-align: middle;
+}
+
+.payment-history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.payment-history-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.payment-history-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+
+/* =========================================================
+   CUSTOMER
+   ========================================================= */
+
+.payment-customer-cell {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.payment-customer-icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.payment-customer-cell > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.payment-customer-cell strong {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.payment-customer-cell span {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   AMOUNT
+   ========================================================= */
+
+.payment-amount {
+  color: #15803d;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   PAYMENT METHOD
+   ========================================================= */
+
+.payment-method {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   REFERENCE
+   ========================================================= */
+
+.payment-reference {
+  display: inline-block;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #475569;
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.payment-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.payment-history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  padding: 40px 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.payment-history-empty-icon {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.payment-history-empty h3 {
+  margin: 0 0 7px;
+  color: #0f172a;
+  font-size: 17px;
+}
+
+.payment-history-empty p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   MOBILE LIST
+   ========================================================= */
+
+.payment-history-mobile-list {
+  display: none;
+}
+
+.payment-history-mobile-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.payment-mobile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.payment-mobile-amount {
+  padding: 16px 0;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.payment-mobile-amount small {
+  display: block;
+  margin-bottom: 5px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.payment-mobile-amount strong {
+  color: #15803d;
+  font-size: 22px;
+  font-weight: 750;
+}
+
+.payment-mobile-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding-top: 15px;
+}
+
+.payment-mobile-details > div {
+  min-width: 0;
+}
+
+.payment-mobile-details small {
+  display: block;
+  margin-bottom: 5px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.payment-mobile-details strong {
+  display: block;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.payment-mobile-notes {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.payment-mobile-notes small {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.payment-mobile-notes p {
+  margin: 5px 0 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.admin-main > div:first-child {
+  color: #64748b;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .payment-history-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .payment-history-filter {
+    flex-wrap: wrap;
+  }
+
+  .payment-history-search,
+  .payment-history-customer-filter {
+    min-width: calc(50% - 8px);
+  }
+
+  .payment-history-refresh {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .payment-history-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .payment-summary-card {
+    padding: 16px;
+  }
+
+  .payment-summary-card strong {
+    font-size: 21px;
+  }
+
+  .payment-history-filter {
+    display: block;
+    padding: 15px;
+  }
+
+  .payment-history-search,
+  .payment-history-customer-filter {
+    width: 100%;
+    margin-bottom: 13px;
+  }
+
+  .payment-history-refresh {
+    width: 100%;
+  }
+
+  .payment-history-table-wrapper {
+    display: none;
+  }
+
+  .payment-history-mobile-list {
+    display: block;
+  }
+
+  .payment-history-list-header {
+    margin-bottom: 12px;
+  }
+
+  .payment-history-list-header h2 {
+    font-size: 17px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .payment-history-mobile-card {
+    padding: 14px;
+  }
+
+  .payment-customer-icon {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
+
+  .payment-customer-cell strong {
+    font-size: 13px;
+  }
+
+  .payment-mobile-details {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .payment-mobile-amount strong {
+    font-size: 20px;
+  }
+
 }

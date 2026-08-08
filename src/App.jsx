@@ -12,6 +12,9 @@ import Dashboard from "./pages/Dashboard";
 import Business from "./pages/Business";
 import Categories from "./pages/Categories";
 import Items from "./pages/Items";
+import Plans from "./pages/Plans";
+import Upgrade from "./pages/Upgrade";
+import PaymentHistory from "./pages/PaymentHistory";
 
 function App() {
   return (
@@ -66,6 +69,21 @@ function App() {
           path="/items"
           element={<Items />}
         />
+
+        <Route
+  path="/plans"
+  element={<Plans />}
+/>
+
+<Route
+  path="/upgrade"
+  element={<Upgrade />}
+/>
+
+<Route
+  path="/payment-history"
+  element={< PaymentHistory/>}
+/>
 
         {/* CATALOGUE */}
 
